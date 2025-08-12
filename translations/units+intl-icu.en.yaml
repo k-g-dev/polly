@@ -1,0 +1,21 @@
+date_time:
+    day: >-
+      {day, plural,
+          one {# day}
+          other {# days}
+      }
+    hour: >-
+      {hour, plural,
+          one {# hour}
+          other {# hours}
+      }
+    minute: >-
+      {minute, plural,
+          one {# minute}
+          other {# minutes}
+      }
+    second: >-
+      {second, plural,
+          one {# second}
+          other {# seconds}
+      }

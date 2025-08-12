@@ -1,0 +1,44 @@
+.navbar {
+    &__brand {
+        display: flex;
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+
+    &__brand-letter {
+        padding: 0 5px;
+
+        &:first-child {
+            color: lightseagreen;
+            padding-left: 0;
+        }
+
+        &:nth-child(2) {
+            color: maroon;
+        }
+
+        &:nth-child(3) {
+            transform: rotate(4deg);
+        }
+
+        &:nth-child(4) {
+            transform: rotate(20deg);
+        }
+
+        &:nth-child(n+3):nth-child(-n+4) {
+            background-color: lightcoral;
+        }
+    }
+
+    &__sign-up {
+        width: 100%;
+        margin-top: 2rem;
+    }
+}
+
+@include media-breakpoint-up(md)  {
+    .navbar__sign-up {
+        width: auto;
+        margin-top: 0;
+    }
+}

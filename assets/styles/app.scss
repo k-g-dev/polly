@@ -1,0 +1,16 @@
+@import "./fonts/ibm_plex_sans";
+@import "./fonts/ibm_plex_mono";
+@import "./helper/variables";
+@import "~bootstrap";
+@import "./layout/header";
+@import "./layout/footer";
+
+body {
+    padding-top: 62px;
+}
+
+label.required:after {
+    content: " (required)";
+    color: lightcoral;
+    font-size: 0.85rem;
+}

@@ -1,0 +1,37 @@
+{% block repeated_password_row %}
+    <div class="js-repeated-password-wrapper">
+        <div class="mb-3">
+            {{ form_label(form.first) }}
+            {{ form_widget(form.first) }}
+            {{ form_help(form.first) }}
+
+            <button
+                class="btn btn-secondary btn-sm mt-2"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#passwordRequirements"
+                aria-expanded="false"
+                aria-controls="passwordRequirements"
+            >
+                <span class="js-toggler-action-info">Show</span> other password requirements
+            </button>
+
+            <div class="collapse mt-2" id="passwordRequirements">
+                <div class="card card-body small">
+                    Your password must be at least {{ passwordMinLength }} characters long and include a combination of at least one:
+                    <ul>
+                        <li>lowercase letter,</li>
+                        <li>uppercase letter,</li>
+                        <li>digit,</li>
+                        <li>symbol from a defined set of special characters.</li>
+                    </ul>
+                    <p class="mb-0">Definied set of special characters (listed as string between double quotes):<br>"<span class="text-success font-ibm-plex-mono">&nbsp;!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~</span>"</p>
+                </div>
+            </div>
+
+            {{ form_errors(form.first, { 'attr': {'class': 'mt-2'} }) }}
+        </div>
+
+        {{ form_row(form.second) }}
+    </div>
+{% endblock %}

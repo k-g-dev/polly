@@ -1,0 +1,14 @@
+@import "~bootstrap/scss/functions";
+
+$enable-rounded: false;
+
+$primary: rgb(17 122 139);
+$secondary: rgb(84 112 135);
+$info: rgb(156 205 247);
+
+$navbar-light-hover-color: maroon;
+$navbar-toggler-focus-width: 0.1rem;
+
+@import "~bootstrap/scss/variables";
+
+$spacers: map-merge($spacers, (5: $spacer * 2));
