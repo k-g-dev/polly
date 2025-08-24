@@ -6,6 +6,21 @@ use App\Enum\Array\TrimMode;
 
 class ArrayHelper
 {
+    public function flatten(array $array): array
+    {
+        $result = [];
+
+        foreach ($array as $value) {
+            if (is_array($value) && !empty($value)) {
+                $result = array_merge($result, $this->flatten($value));
+            } else {
+                $result[] = $value;
+            }
+        }
+
+        return $result;
+    }
+
     /**
      * By default, items with empty values are deleted.
      *

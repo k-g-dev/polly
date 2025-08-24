@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ parent() }}: Register{% endblock %}
+{% block title %}{{ parent() }}: Sign up{% endblock %}
 
 {% block body %}
     <div class="container py-5">
@@ -10,7 +10,7 @@
                     <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
                 {% endfor %}
 
-                <h1 class="h3 mb-3">Register</h1>
+                <h1 class="h3 mb-3">Sign up</h1>
 
                 {{ form_errors(registrationForm) }}
 
@@ -18,7 +18,7 @@
                     {{ form_row(registrationForm.email) }}
                     {{ form_row(registrationForm.plainPassword) }}
                     {{ form_row(registrationForm.agreeTerms) }}
-                    <button type="submit" class="btn btn-primary mt-2 w-100">Register</button>
+                    <button type="submit" class="btn btn-primary mt-2 w-100">Create account</button>
                 {{ form_end(registrationForm) }}
             </div>
         </div>

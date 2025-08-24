@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ parent() }}: Verify email{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-xl-6">
+                <h1 class="h3 mb-3">Verify your email</h1>
+
+                <div class="alert alert-info">Please confirm your email address by clicking on the verification link in the email you received during registration.</div>
+
+                <p class="mt-5">If you did not receive the email or if the verification link has expired, please use the resend option:</p>
+
+                <form method="POST">
+                    <button type="submit" class="btn btn-primary mt-2 w-100">Resend email</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

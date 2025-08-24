@@ -6,6 +6,7 @@
 parameters:
     app.email_from: '%env(string:EMAIL_FROM)%'
     app.email_name: 'Polly Mail Bot'
+    app.login_throttling.max_attempts: 3
     app.password.min_length: 12
     app.symfonycasts_verify_email.lifetime: 7200
 

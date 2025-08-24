@@ -1,44 +1,105 @@
-.navbar {
+.navigation-bar {
+    @extend .navbar;
+    @extend .navbar-expand-md;
+
     &__brand {
+        @extend .navbar-brand;
         display: flex;
         font-size: 1.5rem;
         font-weight: 600;
+
+        &-letter {
+            padding: 0 5px;
+
+            &:first-child {
+                color: lightseagreen;
+                padding-left: 0;
+            }
+
+            &:nth-child(2) {
+                color: maroon;
+            }
+
+            &:nth-child(3) {
+                transform: rotate(4deg);
+            }
+
+            &:nth-child(4) {
+                transform: rotate(20deg);
+            }
+
+            &:nth-child(n+3):nth-child(-n+4) {
+                background-color: lightcoral;
+            }
+        }
     }
 
-    &__brand-letter {
-        padding: 0 5px;
+    &__toggler {
+        @extend .navbar-toggler;
 
-        &:first-child {
-            color: lightseagreen;
-            padding-left: 0;
-        }
-
-        &:nth-child(2) {
-            color: maroon;
-        }
-
-        &:nth-child(3) {
-            transform: rotate(4deg);
-        }
-
-        &:nth-child(4) {
-            transform: rotate(20deg);
-        }
-
-        &:nth-child(n+3):nth-child(-n+4) {
-            background-color: lightcoral;
+        &-icon {
+            @extend .navbar-toggler-icon;
         }
     }
 
-    &__sign-up {
-        width: 100%;
+    &__collapse {
+        @extend .navbar-collapse;
+    }
+
+    &__nav {
+        @extend .navbar-nav;
+        margin-right: auto;
+        margin-bottom: 0.5rem;
+
+        &-item {
+            @extend .nav-item;
+        }
+
+        &-link {
+            @extend .nav-link;
+        }
+    }
+
+    &__sign-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
         margin-top: 2rem;
+        margin-bottom: 0.5rem;
     }
-}
 
-@include media-breakpoint-up(md)  {
-    .navbar__sign-up {
-        width: auto;
-        margin-top: 0;
+    &__sign-button {
+        @extend .btn;
+        @extend .btn-sm;
+        width: 100%;
+
+        &--in {
+            @extend .btn-outline-success;
+        }
+
+        &--up {
+            @extend .btn-outline-primary;
+        }
+
+        &--out {
+            @extend .btn-outline-secondary;
+        }
+    }
+
+    @include media-breakpoint-up(md)  {
+        &__nav {
+            margin-bottom: 0;
+        }
+
+        &__sign-buttons {
+            flex-direction: row;
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        &__sign-button {
+            width: auto;
+            min-width: 70px;
+        }
     }
 }

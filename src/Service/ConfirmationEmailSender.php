@@ -29,14 +29,26 @@ class ConfirmationEmailSender
                 ->from(new Address($this->emailFrom, $this->emailName))
                 ->to((string) $user->getEmail())
                 ->subject('Please Confirm your Email')
-                ->htmlTemplate('registration/confirmation_email.html.twig'),
+                ->htmlTemplate('email/auth/confirmation_email.html.twig'),
+        );
+    }
+
+    /**
+     * @param EmptyValuesSkipMode $skipMode Mode for skipping empty time units describing the lifetime of the
+     * verification link
+     */
+    public function getInstruction(EmptyValuesSkipMode $skipMode = EmptyValuesSkipMode::All): string
+    {
+        return sprintf(
+            'Please verify your email address. The verification link is valid for %s.',
+            $this->getVerificationLifetime($skipMode),
         );
     }
 
     /**
      * @return string Time period divided into units
      */
-    public function getVerificationLifetime(EmptyValuesSkipMode $skipMode = EmptyValuesSkipMode::All): string
+    private function getVerificationLifetime(EmptyValuesSkipMode $skipMode = EmptyValuesSkipMode::All): string
     {
         return $this->durationHelper->getAsString($this->verificationLifetime, $skipMode) ?: '0 seconds';
     }

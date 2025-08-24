@@ -16,6 +16,65 @@ class ArrayHelperTest extends TestCase
         $this->arrayHelper = new ArrayHelper();
     }
 
+    #[DataProvider('arrayToFlattenAssociativeArrayProvider')]
+    #[DataProvider('arrayToFlattenNonAssociativeArrayProvider')]
+    public function testFlatten(array $expected, array $array): void
+    {
+        $result = $this->arrayHelper->flatten($array);
+
+        self::assertSame($expected, $result);
+    }
+
+    public static function arrayToFlattenAssociativeArrayProvider(): \Generator
+    {
+        $array = [
+            'key-0' => 'value-0',
+            'key-1' => [
+                'key-1-0' => 'value-1-0',
+            ],
+            'key-2' => [
+                'key-2-0' => 'value-2-0',
+                'key-2-1' => [
+                    'key-2-1-0' => 'value-2-1-0',
+                    'key-2-1-1' => 'value-2-1-1',
+                ],
+            ],
+            'key-3' => 0,
+            'key-4' => null,
+            'key-5' => 'value-0',
+        ];
+
+        yield 'Associative array flatten' => [
+            'expected'  => ['value-0', 'value-1-0', 'value-2-0', 'value-2-1-0', 'value-2-1-1', 0, null, 'value-0'],
+            'array'     => $array,
+        ];
+    }
+
+    public static function arrayToFlattenNonAssociativeArrayProvider(): \Generator
+    {
+        $array = [
+            'value-0',
+            [
+                'value-1-0',
+            ],
+            [
+                'value-2-0',
+                [
+                    'value-2-1-0',
+                    'value-2-1-1',
+                ],
+            ],
+            0,
+            null,
+            'value-0',
+        ];
+
+        yield 'Non-associative array flatten' => [
+            'expected'  => ['value-0', 'value-1-0', 'value-2-0', 'value-2-1-0', 'value-2-1-1', 0, null, 'value-0'],
+            'array'     => $array,
+        ];
+    }
+
     #[DataProvider('arrayToTrimAssociativeArrayProvider')]
     #[DataProvider('arrayToTrimNonAssociativeArrayProvider')]
     #[DataProvider('arrayToTrimWithCallbackProvider')]

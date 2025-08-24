@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Enum\AuthorizationRole;
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -79,17 +80,24 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $roles = $this->roles;
         // guarantee every user at least has ROLE_USER
-        $roles[] = 'ROLE_USER';
+        $roles[] = AuthorizationRole::User->value;
 
         return array_unique($roles);
     }
 
     /**
-     * @param list<string> $roles
+     * @param AuthorizationRole|null ...$roles One or more roles to assign; pass only null to clear roles
      */
-    public function setRoles(array $roles): static
+    public function setRoles(?AuthorizationRole ...$roles): static
     {
-        $this->roles = $roles;
+        $authorizationRoles = array_values(
+            array_unique(array_filter($roles), SORT_REGULAR)
+        );
+
+        $this->roles = array_map(
+            fn (AuthorizationRole $role): string => $role->value,
+            $authorizationRoles,
+        );
 
         return $this;
     }

@@ -3,6 +3,7 @@
 namespace App\Factory;
 
 use App\Entity\User;
+use App\Enum\AuthorizationRole;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
@@ -13,6 +14,8 @@ use function Zenstruck\Foundry\force;
  */
 final class UserFactory extends PersistentProxyObjectFactory
 {
+    public const USER_DEFAULT_PASSWORD = 'userPassword#001';
+
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
      */
@@ -40,9 +43,9 @@ final class UserFactory extends PersistentProxyObjectFactory
             'agreedTermsAt' => force(\DateTimeImmutable::createFromMutable($createdAt)),
             'createdAt' => $createdAt,
             'email' => self::faker()->unique()->safeEmail(),
-            'isVerified' => self::faker()->boolean(),
-            'password' => 'userPassword#001',
-            'roles' => [],
+            'isVerified' => true,
+            'password' => self::USER_DEFAULT_PASSWORD,
+            'roles' => null,
             'updatedAt' => $updatedAt,
         ];
     }
@@ -58,5 +61,15 @@ final class UserFactory extends PersistentProxyObjectFactory
                     $user->setPassword($this->passwordHasher->hashPassword($user, $user->getPassword()));
                 }
             });
+    }
+
+    public function admin(): self
+    {
+        return $this->with(['roles' => AuthorizationRole::Admin]);
+    }
+
+    public function verified(bool $status = true): self
+    {
+        return $this->with(['isVerified' => $status]);
     }
 }

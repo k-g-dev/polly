@@ -1,0 +1,13 @@
+<h1>Please confirm your email.</h1>
+
+<p>
+    Please confirm your email address by clicking the following link: <br>
+    <a href="{{ signedUrl|raw }}">Confirm My Email</a>.
+    This link will expire in {{ expiresAtMessageKey|trans(expiresAtMessageData, 'VerifyEmailBundle') }}.
+</p>
+
+<p>If the link has expired, please go through the sign in process to access the form that allow to resend the confirmation link.</p>
+
+<p>Thank you. Enjoy using the app.</p>
+
+<p><small>This message was sent automatically. Please do not reply to it.</small></p>

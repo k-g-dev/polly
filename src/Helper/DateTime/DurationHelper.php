@@ -17,7 +17,7 @@ class DurationHelper
 
     public function __construct(
         private TranslatorInterface $translator,
-        private ArrayHelper $arrayHelper
+        private ArrayHelper $arrayHelper,
     ) {
     }
 
