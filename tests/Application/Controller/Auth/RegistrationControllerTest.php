@@ -2,6 +2,7 @@
 
 namespace App\Tests\Application\Controller\Auth;
 
+use App\Controller\Auth\SecurityController;
 use App\Entity\User;
 use App\Factory\UserFactory;
 use App\Helper\ArrayHelper;
@@ -12,7 +13,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
-class RegistrationControllerTest extends WebTestCase
+final class RegistrationControllerTest extends WebTestCase
 {
     use Factories;
     use ResetDatabase;
@@ -20,8 +21,8 @@ class RegistrationControllerTest extends WebTestCase
     private const VALID_REGISTRATION_FORM_DATA = [
         'email' => 'me@example.com',
         'plainPassword' => [
-            'first' => 'validPassword#001',
-            'second' => 'validPassword#001',
+            'first' => UserFactory::USER_DEFAULT_PASSWORD,
+            'second' => UserFactory::USER_DEFAULT_PASSWORD,
         ],
         'agreeTerms' => true,
     ];
@@ -105,7 +106,7 @@ class RegistrationControllerTest extends WebTestCase
         self::assertResponseRedirects();
         $this->client->followRedirect();
 
-        self::assertRouteSame('app_login');
+        self::assertRouteSame(SecurityController::ROUTE_LOGIN);
         self::assertSelectorTextSame(
             '.alert-info',
             'Please verify your email address. The verification link is valid for 1 hour.',
@@ -115,7 +116,7 @@ class RegistrationControllerTest extends WebTestCase
         $messageBody = $messages[0]->getHtmlBody();
         self::assertIsString($messageBody);
 
-        preg_match('#(http://localhost/account/verification/email.+)">#', $messageBody, $verificationLink);
+        preg_match('#"(.+/verification/account/email.+)">#', $messageBody, $verificationLink);
 
         // "Click" the link and see if the user is verified.
         $this->client->request('GET', $verificationLink[1]);
@@ -156,10 +157,10 @@ class RegistrationControllerTest extends WebTestCase
         yield 'Not matching passwords' => [$data02];
 
         $data03 = self::VALID_REGISTRATION_FORM_DATA;
-        $data03['plainPassword']['first'] = 'aaaaaaAAAAAA#000';
-        $data03['plainPassword']['second'] = 'aaaaaaAAAAAA#000';
+        $data03['plainPassword']['first'] = 'aaaaBBBBBBBB#000';
+        $data03['plainPassword']['second'] = 'aaaaBBBBBBBB#000';
 
-        yield 'To easy password' => [$data03];
+        yield 'Password not strong enough' => [$data03];
 
         $data04 = self::VALID_REGISTRATION_FORM_DATA;
         $data04['agreeTerms'] = false;

@@ -2,11 +2,15 @@
 
 namespace App\Security;
 
+use App\Controller\Auth\SecurityController;
 use App\Enum\AuthorizationRole;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Routing\Exception\InvalidParameterException;
+use Symfony\Component\Routing\Exception\MissingMandatoryParametersException;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Http\Authenticator\AbstractLoginFormAuthenticator;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\CsrfTokenBadge;
@@ -23,13 +27,13 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
 {
     use TargetPathTrait;
 
-    public function __construct(private RouterInterface $router)
+    public function __construct(private UrlGeneratorInterface $urlGenerator)
     {
     }
 
     protected function getLoginUrl(Request $request): string
     {
-        return $this->router->generate('app_login');
+        return $this->urlGenerator->generate(SecurityController::ROUTE_LOGIN);
     }
 
     public function authenticate(Request $request): Passport
@@ -45,15 +49,27 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
         );
     }
 
+    /**
+     * @throws RouteNotFoundException
+     * @throws MissingMandatoryParametersException
+     * @throws InvalidParameterException
+     */
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
-        $targetPath = $this->getTargetPath($request->getSession(), $firewallName);
+        $targetPath =
+            $this->getTargetPath($request->getSession(), $firewallName)
+            ?? $this->getDefaultTargetPath($token);
 
-        if ($targetPath) {
-            // Let the request continue.
-            return null;
-        }
+        return new RedirectResponse($targetPath);
+    }
 
+    /**
+     * @throws RouteNotFoundException
+     * @throws MissingMandatoryParametersException
+     * @throws InvalidParameterException
+     */
+    private function getDefaultTargetPath(TokenInterface $token): string
+    {
         $targetRouteName = (
             in_array(AuthorizationRole::Admin->value, $token->getRoleNames(), true)
             ? AuthorizationRole::Admin
@@ -61,8 +77,6 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
         )
         ->getRouteNameToRedirectAfterLogin();
 
-        return new RedirectResponse(
-            $this->router->generate($targetRouteName),
-        );
+        return $this->urlGenerator->generate($targetRouteName);
     }
 }

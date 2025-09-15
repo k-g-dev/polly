@@ -8,6 +8,7 @@ parameters:
     app.email_name: 'Polly Mail Bot'
     app.login_throttling.max_attempts: 3
     app.password.min_length: 12
+    app.password.special_chars: !php/const App\Const\Authentication::PASSWORD_SPECIAL_CHARACTERS
     app.symfonycasts_verify_email.lifetime: 7200
 
 when@test:
@@ -32,3 +33,17 @@ services:
             $emailFrom: '%app.email_from%'
             $emailName: '%app.email_name%'
             $verificationLifetime: '%app.symfonycasts_verify_email.lifetime%'
+
+    App\Service\PasswordRequirementsInfo\PasswordRequirementsInfoHtml:
+        factory: ['@App\Service\PasswordRequirementsInfo\PasswordRequirementsInfoFactory', 'createHtml']
+
+    App\Service\PasswordRequirementsInfo\PasswordRequirementsInfoCli:
+        factory: ['@App\Service\PasswordRequirementsInfo\PasswordRequirementsInfoFactory', 'createCli']
+
+    App\Form\Type\RepeatedPasswordType:
+        bind:
+            App\Service\PasswordRequirementsInfo\PasswordRequirementsInfoInterface: '@App\Service\PasswordRequirementsInfo\PasswordRequirementsInfoHtml'
+
+    App\Command\UserCreateCommand:
+        bind:
+            App\Service\PasswordRequirementsInfo\PasswordRequirementsInfoInterface: '@App\Service\PasswordRequirementsInfo\PasswordRequirementsInfoCli'

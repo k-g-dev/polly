@@ -3,6 +3,8 @@
 namespace App\Tests\Application\Controller\Auth;
 
 use App\Const\Authentication;
+use App\Controller\Auth\AccountVerificationController;
+use App\Controller\Auth\SecurityController;
 use App\Entity\User;
 use App\Enum\AuthorizationRole;
 use App\Factory\UserFactory;
@@ -15,7 +17,7 @@ use Symfony\Component\Security\Http\SecurityRequestAttributes;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
-class SecurityControllerTest extends WebTestCase
+final class SecurityControllerTest extends WebTestCase
 {
     use Factories;
     use ResetDatabase;
@@ -163,7 +165,7 @@ class SecurityControllerTest extends WebTestCase
 
             self::assertResponseRedirects();
             $this->client->followRedirect();
-            self::assertRouteSame('app_login');
+            self::assertRouteSame(SecurityController::ROUTE_LOGIN);
 
             if ($i < $maxAttempts) {
                 self::assertSelectorTextSame('.alert-danger', 'Invalid credentials.');
@@ -203,12 +205,12 @@ class SecurityControllerTest extends WebTestCase
 
         self::assertResponseRedirects();
         $this->client->followRedirect();
-        self::assertRouteSame('app_verify_email_resend');
+        self::assertRouteSame(AccountVerificationController::ROUTE_RESEND_VERIFICATION_EMAIL);
 
         /** @var Session $session */
         $session = $this->client->getRequest()->getSession();
 
-        self::assertEquals($user->getEmail(), $session->get(Authentication::NON_VERIFIED_EMAIL));
+        self::assertSame($user->getEmail(), $session->get(Authentication::NON_VERIFIED_EMAIL));
         self::assertFalse($session->has(SecurityRequestAttributes::AUTHENTICATION_ERROR));
     }
 

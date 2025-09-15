@@ -19,11 +19,11 @@ security:
             login_throttling:
                 max_attempts: '%app.login_throttling.max_attempts%'
             # form_login:
-                # login_path: app_login
-                # check_path: app_login
+                # login_path: !php/const App\Controller\Auth\SecurityController::ROUTE_LOGIN
+                # check_path: !php/const App\Controller\Auth\SecurityController::ROUTE_LOGIN
                 # enable_csrf: true
             logout:
-                path: app_logout
+                path: !php/const App\Controller\Auth\SecurityController::ROUTE_LOGOUT
                 # where to redirect after logout
                 # target: app_any_route
             custom_authenticators:
@@ -39,6 +39,7 @@ security:
     # Note: Only the *first* access control that matches will be used
     access_control:
         - { path: ^/admin, roles: !php/enum App\Enum\AuthorizationRole::Admin->value }
+        - { path: ^/account, roles: !php/enum App\Enum\AuthorizationRole::User->value }
 
 when@test:
     security:

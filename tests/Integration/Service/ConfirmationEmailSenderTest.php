@@ -10,14 +10,15 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
-class ConfirmationEmailSenderTest extends KernelTestCase
+final class ConfirmationEmailSenderTest extends KernelTestCase
 {
     use Factories;
     use ResetDatabase;
 
     public function testSendEmailWithProperData(): void
     {
-        $confirmationEmailSender = static::getContainer()->get(ConfirmationEmailSender::class);
+        $container = static::getContainer();
+        $confirmationEmailSender = $container->get(ConfirmationEmailSender::class);
 
         /** @var User $user */
         $user = UserFactory::createOne([
@@ -34,7 +35,7 @@ class ConfirmationEmailSenderTest extends KernelTestCase
 
         /** @var TemplatedEmail $templatedEmail */
         $templatedEmail = $messages[0];
-        $emailFrom = static::getContainer()->getParameter('app.email_from');
+        $emailFrom = $container->getParameter('app.email_from');
 
         self::assertEmailAddressContains($templatedEmail, 'from', $emailFrom);
         self::assertEmailAddressContains($templatedEmail, 'to', $user->getEmail());

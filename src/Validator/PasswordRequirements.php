@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Validator\Constraints;
+namespace App\Validator;
 
+use App\Const\Authentication;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Validator\Constraints\Compound;
-use Symfony\Component\Validator\Constraints\Sequentially;
 
 #[\Attribute]
-class PasswordRequirements extends Compound
+class PasswordRequirements extends Assert\Compound
 {
     protected string $passwordMinLength;
     protected bool $sequentiallyValidation = false;
@@ -19,6 +18,8 @@ class PasswordRequirements extends Compound
 
     protected function getConstraints($options): array
     {
+        $specialCharacters = preg_quote(Authentication::PASSWORD_SPECIAL_CHARACTERS, '/');
+
         $constraints = [
             new Assert\NotBlank(message: 'Please enter a password.'),
             new Assert\Type('string'),
@@ -37,12 +38,16 @@ class PasswordRequirements extends Compound
                 message: 'Your password should contain at least one lowercase letter.',
             ),
             new Assert\Regex(
-                pattern: '/[ !"#$%&\'()*+,-.\/:;<=>?@[\]^_`{|}~]+/',
+                pattern: '/[A-Z]+/',
+                message: 'Your password should contain at least one uppercase letter.',
+            ),
+            new Assert\Regex(
+                pattern: '/[' . $specialCharacters . ']+/',
                 message: 'Your password should contain at least one special character.',
             ),
             new Assert\PasswordStrength(),
         ];
 
-        return $options['sequentiallyValidation'] ? [new Sequentially($constraints)] : $constraints;
+        return $options['sequentiallyValidation'] ? [new Assert\Sequentially($constraints)] : $constraints;
     }
 }

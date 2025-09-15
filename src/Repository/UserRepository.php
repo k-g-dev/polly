@@ -19,6 +19,11 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         parent::__construct($registry, User::class);
     }
 
+    public function isEmailExists(string $email): bool
+    {
+        return (bool) $this->count(['email' => $email]);
+    }
+
     /**
      * Used to upgrade (rehash) the user's password automatically over time.
      */

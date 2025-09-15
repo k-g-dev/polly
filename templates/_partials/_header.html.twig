@@ -1,7 +1,7 @@
 <header>
     <nav class="navigation-bar fixed-top bg-body-tertiary" data-bs-theme="light">
         <div class="container-xxl">
-            <a class="navigation-bar__brand font-ibm-plex-mono" href="{{ path('app_homepage') }}">
+            <a class="navigation-bar__brand font-ibm-plex-mono" href="{{ path(constant('App\\Controller\\MainController::ROUTE_HOMEPAGE')) }}">
                 <span class="navigation-bar__brand-letter">P</span>
                 <span class="navigation-bar__brand-letter">O</span>
                 <span class="navigation-bar__brand-letter">L</span>
@@ -21,15 +21,15 @@
             <div class="navigation-bar__collapse collapse" id="navbarCollapse">
                 <ul class="navigation-bar__nav">
                     <li class="navigation-bar__nav-item">
-                        <a class="navigation-bar__nav-link" href="{{ path('app_homepage') }}">Home</a>
+                        <a class="navigation-bar__nav-link" href="{{ path(constant('App\\Controller\\MainController::ROUTE_HOMEPAGE')) }}">Home</a>
                     </li>
                 </ul>
                 <div class="navigation-bar__sign-buttons">
                 {% if is_granted(enum('App\\Enum\\AuthorizationRole').User.value) %}
-                    <a class="navigation-bar__sign-button navigation-bar__sign-button--out" href="{{ path('app_logout') }}">Sign out</a>
+                    <a class="navigation-bar__sign-button navigation-bar__sign-button--out" href="{{ path(constant('App\\Controller\\Auth\\SecurityController::ROUTE_LOGOUT')) }}">Sign out</a>
                 {% else %}
-                    <a class="navigation-bar__sign-button navigation-bar__sign-button--in" href="{{ path('app_login') }}">Sign in</a>
-                    <a class="navigation-bar__sign-button navigation-bar__sign-button--up" href="{{ path('app_register') }}">Sign up</a>
+                    <a class="navigation-bar__sign-button navigation-bar__sign-button--in" href="{{ path(constant('App\\Controller\\Auth\\SecurityController::ROUTE_LOGIN')) }}">Sign in</a>
+                    <a class="navigation-bar__sign-button navigation-bar__sign-button--up" href="{{ path(constant('App\\Controller\\Auth\\RegistrationController::ROUTE_REGISTER')) }}">Sign up</a>
                 {% endif %}
                 </div>
             </div>

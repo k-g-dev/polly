@@ -13,19 +13,12 @@
                 aria-expanded="false"
                 aria-controls="passwordRequirements"
             >
-                <span class="js-toggler-action-info">Show</span> other password requirements
+                <span class="js-toggler-action-info">Show</span> full password requirements
             </button>
 
             <div class="collapse mt-2" id="passwordRequirements">
                 <div class="card card-body small">
-                    Your password must be at least {{ passwordMinLength }} characters long and include a combination of at least one:
-                    <ul>
-                        <li>lowercase letter,</li>
-                        <li>uppercase letter,</li>
-                        <li>digit,</li>
-                        <li>symbol from a defined set of special characters.</li>
-                    </ul>
-                    <p class="mb-0">Definied set of special characters (listed as string between double quotes):<br>"<span class="text-success font-ibm-plex-mono">&nbsp;!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~</span>"</p>
+                    {{ passwordRequirementsInfoFull|raw }}
                 </div>
             </div>
 

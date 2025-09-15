@@ -7,7 +7,7 @@ use App\Helper\ArrayHelper;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-class ArrayHelperTest extends TestCase
+final class ArrayHelperTest extends TestCase
 {
     private ArrayHelper $arrayHelper;
 

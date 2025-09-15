@@ -2,7 +2,8 @@
 
 namespace App\Form\Type;
 
-use App\Validator\Constraints\PasswordRequirements;
+use App\Service\PasswordRequirementsInfo\PasswordRequirementsInfoInterface;
+use App\Validator\PasswordRequirements;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
@@ -15,8 +16,11 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 class RepeatedPasswordType extends AbstractType
 {
     public function __construct(
-        #[Autowire(param: 'app.password.min_length')] private int $passwordMinLength,
+        #[Autowire(param: 'app.password.min_length')]
+        private int $passwordMinLength,
+        private PasswordRequirementsInfoInterface $passwordRequirementsInfo,
     ) {
+        $this->passwordRequirementsInfo->setMinLength($this->passwordMinLength);
     }
 
     public function getParent(): string
@@ -26,7 +30,7 @@ class RepeatedPasswordType extends AbstractType
 
     public function buildView(FormView $view, FormInterface $form, array $options): void
     {
-        $view->vars['passwordMinLength'] = $this->passwordMinLength;
+        $view->vars['passwordRequirementsInfoFull'] = $this->passwordRequirementsInfo->getInfoFull();
     }
 
     public function configureOptions(OptionsResolver $resolver): void
@@ -64,7 +68,7 @@ class RepeatedPasswordType extends AbstractType
         $resolver->setOptions('first_options', function (OptionsResolver $optionsResolver): void {
             $optionsResolver->setDefaults([
                 'label' => 'Password',
-                'help' => "Your password must be at least {$this->passwordMinLength} characters long.",
+                'help' => $this->passwordRequirementsInfo->getInfoShort(),
             ]);
         });
     }

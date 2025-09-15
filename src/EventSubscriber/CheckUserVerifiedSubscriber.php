@@ -3,25 +3,26 @@
 namespace App\EventSubscriber;
 
 use App\Const\Authentication;
+use App\Controller\Auth\AccountVerificationController;
 use App\Entity\User;
 use App\Security\Exception\AccountNotVerifiedAuthenticationException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Http\Event\CheckPassportEvent;
 use Symfony\Component\Security\Http\Event\LoginFailureEvent;
 use Symfony\Component\Security\Http\SecurityRequestAttributes;
 
-class CheckVerifiedUserSubscriber implements EventSubscriberInterface
+class CheckUserVerifiedSubscriber implements EventSubscriberInterface
 {
-    public function __construct(private RouterInterface $router)
+    public function __construct(private UrlGeneratorInterface $urlGenerator)
     {
     }
 
     public static function getSubscribedEvents(): array
     {
         return [
-            CheckPassportEvent::class => ['onCheckPassportEvent', -10],
+            CheckPassportEvent::class => ['onCheckPassport', -10],
             LoginFailureEvent::class => 'onLoginFailure',
         ];
     }
@@ -29,7 +30,7 @@ class CheckVerifiedUserSubscriber implements EventSubscriberInterface
     /*
      * @throws AccountNotVerifiedAuthenticationException
      */
-    public function onCheckPassportEvent(CheckPassportEvent $event): void
+    public function onCheckPassport(CheckPassportEvent $event): void
     {
         /** @var User $user */
         $user = $event->getPassport()->getUser();
@@ -54,7 +55,9 @@ class CheckVerifiedUserSubscriber implements EventSubscriberInterface
         $session->remove(SecurityRequestAttributes::AUTHENTICATION_ERROR);
 
         $event->setResponse(
-            new RedirectResponse($this->router->generate('app_verify_email_resend')),
+            new RedirectResponse($this->urlGenerator->generate(
+                AccountVerificationController::ROUTE_RESEND_VERIFICATION_EMAIL,
+            )),
         );
     }
 }

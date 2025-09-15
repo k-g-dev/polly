@@ -2,6 +2,8 @@
 
 namespace App\Tests\Controller;
 
+use App\Controller\Auth\AccountVerificationController;
+use App\Controller\Auth\SecurityController;
 use App\Entity\User;
 use App\Factory\UserFactory;
 use App\Security\EmailVerifier;
@@ -37,7 +39,7 @@ final class AccountVerificationControllerTest extends WebTestCase
         UserFactory::createOne();
 
         $parameters = $userId ? ['id' => (string) $userId] : [];
-        $this->client->request('GET', '/account/verification/email', $parameters);
+        $this->client->request('GET', '/verification/account/email', $parameters);
 
         self::assertResponseRedirects('/');
     }
@@ -64,7 +66,7 @@ final class AccountVerificationControllerTest extends WebTestCase
 
         /** @var VerifyEmailSignatureComponents $signatureComponents */
         $signatureComponents = $verifyEmailHelper->generateSignature(
-            'app_verify_email',
+            AccountVerificationController::ROUTE_VERIFY_EMAIL,
             (string) $user->getId(),
             (string) $user->getEmail(),
             ['id' => $user->getId()]
@@ -81,11 +83,11 @@ final class AccountVerificationControllerTest extends WebTestCase
             ? $queryParametersModifier($queryParameters)
             : $queryParameters;
 
-        $this->client->request('GET', '/account/verification/email', $getParameters);
+        $this->client->request('GET', '/verification/account/email', $getParameters);
         self::assertResponseRedirects();
         $this->client->followRedirect();
 
-        self::assertRouteSame('app_login');
+        self::assertRouteSame(SecurityController::ROUTE_LOGIN);
         self::assertSame($isVerificationSuccessExpected, $user->isVerified());
         self::assertSelectorExists($isVerificationSuccessExpected ? '.alert-success' : '.alert-danger');
     }
@@ -124,7 +126,7 @@ final class AccountVerificationControllerTest extends WebTestCase
         // Unverified user should be redirected to a page with a form that allow to resend verification email.
         self::assertResponseRedirects();
         $this->client->followRedirect();
-        self::assertRouteSame('app_verify_email_resend');
+        self::assertRouteSame(AccountVerificationController::ROUTE_RESEND_VERIFICATION_EMAIL);
 
         self::assertPageTitleContains('Verify email');
         self::assertSelectorTextSame('h1', 'Verify your email');
@@ -152,7 +154,7 @@ final class AccountVerificationControllerTest extends WebTestCase
 
         self::assertResponseRedirects();
         $this->client->followRedirect();
-        self::assertRouteSame('app_verify_email_resend');
+        self::assertRouteSame(AccountVerificationController::ROUTE_RESEND_VERIFICATION_EMAIL);
 
         $this->client->submitForm('Resend email');
 
@@ -173,6 +175,6 @@ final class AccountVerificationControllerTest extends WebTestCase
         $this->client->catchExceptions(false);
         $this->expectException(AccessDeniedException::class);
 
-        $this->client->request('GET', '/account/verification/email/resend');
+        $this->client->request('GET', '/verification/account/email/resend');
     }
 }

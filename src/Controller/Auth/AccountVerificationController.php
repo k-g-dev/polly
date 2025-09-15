@@ -3,6 +3,7 @@
 namespace App\Controller\Auth;
 
 use App\Const\Authentication;
+use App\Controller\MainController;
 use App\Entity\User;
 use App\Enum\Array\EmptyValuesSkipMode;
 use App\Enum\FlashMessageType;
@@ -15,40 +16,48 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\RateLimiter\RateLimiterFactoryInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 
 final class AccountVerificationController extends AbstractController
 {
-    #[Route('/account/verification/email', name: 'app_verify_email', methods: [Request::METHOD_GET])]
+    public const ROUTE_VERIFY_EMAIL = 'app_account_verify_email';
+    public const ROUTE_RESEND_VERIFICATION_EMAIL = 'app_account_resend_verification_email';
+
+    #[Route('/verification/account/email', name: 'app_account_verify_email', methods: [Request::METHOD_GET])]
     public function verifyEmail(
         Request $request,
         UserRepository $userRepository,
         EmailVerifier $emailVerifier,
+        TranslatorInterface $translator,
     ): Response {
         $id = $request->query->get('id');
 
         $user = ($id !== null) ? $userRepository->find($id) : null;
 
         if (null === $user) {
-            return $this->redirectToRoute('app_homepage');
+            return $this->redirectToRoute(MainController::ROUTE_HOMEPAGE);
         }
 
         try {
             $emailVerifier->handleEmailConfirmation($request, $user);
             $this->addFlash(FlashMessageType::Success->value, 'Your email address has been verified.');
         } catch (VerifyEmailExceptionInterface $exception) {
-            $this->addFlash(FlashMessageType::Danger->value, $exception->getReason());
+            $this->addFlash(
+                FlashMessageType::Danger->value,
+                $translator->trans($exception->getReason(), [], 'VerifyEmailBundle'),
+            );
         }
 
-        return $this->redirectToRoute('app_login');
+        return $this->redirectToRoute(SecurityController::ROUTE_LOGIN);
     }
 
     #[Route(
-        '/account/verification/email/resend',
-        name: 'app_verify_email_resend',
-        methods: [Request::METHOD_GET, Request::METHOD_POST]
+        '/verification/account/email/resend',
+        name: 'app_account_resend_verification_email',
+        methods: [Request::METHOD_GET, Request::METHOD_POST],
     )]
-    public function resendVerifyEmail(
+    public function resendVerificationEmail(
         Request $request,
         UserRepository $userRepostory,
         ConfirmationEmailSender $confirmationEmailSender,
@@ -73,7 +82,7 @@ final class AccountVerificationController extends AbstractController
 
             if ($user->isVerified()) {
                 $this->addFlash(FlashMessageType::Info->value, 'Your email address was already verified.');
-                return $this->redirectToRoute('app_login');
+                return $this->redirectToRoute(SecurityController::ROUTE_LOGIN);
             }
 
             $rateLimit = $limiter->consume();
@@ -85,15 +94,16 @@ final class AccountVerificationController extends AbstractController
                 $lockDuration = $rateLimit->getRetryAfter()->getTimestamp() - time();
                 $lockDurationString = $durationHelper->getAsString($lockDuration, EmptyValuesSkipMode::FromStart);
                 $message = sprintf(
-                    'You have reached the email sending limit. The ability to resend the email will be unlocked in %s.',
+                    'The email was not sent. You have reached the email sending limit. '
+                    . 'The ability to resend the email will be unlocked in %s.',
                     $lockDurationString,
                 );
                 $this->addFlash(FlashMessageType::Warning->value, $message);
             }
 
-            return $this->redirectToRoute('app_login');
+            return $this->redirectToRoute(SecurityController::ROUTE_LOGIN);
         }
 
-        return $this->render('auth/account_verification/resend_verify_email.html.twig');
+        return $this->render('auth/account_verification/resend_verification_email.html.twig');
     }
 }

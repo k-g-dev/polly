@@ -6,7 +6,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 final class MainControllerTest extends WebTestCase
 {
-    public function testIndex(): void
+    public function testHomepage(): void
     {
         $client = static::createClient();
         $client->request('GET', '/');

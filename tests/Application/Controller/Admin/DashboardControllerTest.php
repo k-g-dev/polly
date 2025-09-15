@@ -20,7 +20,7 @@ final class DashboardControllerTest extends WebTestCase
         $this->client = static::createClient();
     }
 
-    public function testAdminCanLogInToDashboard(): void
+    public function testAdminHasAccessToAdminDashboard(): void
     {
         $admin = UserFactory::new()->admin()->create();
         $this->client->loginUser($admin->_real());
@@ -29,7 +29,7 @@ final class DashboardControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
     }
 
-    public function testUserCannotLogInToDashboard(): void
+    public function testUserDoesNotHaveAccessToAdminDashboard(): void
     {
         $user = UserFactory::createOne();
         $this->client->loginUser($user->_real());
@@ -38,7 +38,7 @@ final class DashboardControllerTest extends WebTestCase
         self::assertResponseStatusCodeSame(403);
     }
 
-    public function testAnonymousUserCannotLogInToDashboard(): void
+    public function testAnonymousUserDoesNotHaveAccessToAdminDashboard(): void
     {
         $this->client->request('GET', '/admin');
         self::assertResponseRedirects('/login', 302);

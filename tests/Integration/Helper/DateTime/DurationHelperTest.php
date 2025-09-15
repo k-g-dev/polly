@@ -8,7 +8,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class DurationHelperTest extends KernelTestCase
+final class DurationHelperTest extends KernelTestCase
 {
     private const MODES_SKIPPING_EMPTY_VALUES = [
         EmptyValuesSkipMode::All,

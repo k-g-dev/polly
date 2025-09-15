@@ -10,7 +10,7 @@
                 <div class="alert alert-warning text-center mb-3">
                     You are logged in as: <strong class="d-block">{{ app.user.userIdentifier }}</strong>
                 </div>
-                <a class="btn btn-primary d-block" href="{{ path('app_logout') }}">Sign out</a>
+                <a class="btn btn-primary d-block" href="{{ path(constant('App\\Controller\\Auth\\SecurityController::ROUTE_LOGOUT')) }}">Sign out</a>
             {% else %}
                 <form method="post">
                     {% if error %}

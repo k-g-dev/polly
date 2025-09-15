@@ -14,6 +14,8 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class RegistrationController extends AbstractController
 {
+    public const ROUTE_REGISTER = 'app_register';
+
     #[Route('/register', name: 'app_register', methods: [Request::METHOD_GET, Request::METHOD_POST])]
     public function register(
         Request $request,
@@ -33,7 +35,7 @@ final class RegistrationController extends AbstractController
             $confirmationEmailSender->send($user);
             $this->addFlash(FlashMessageType::Info->value, $confirmationEmailSender->getInstruction());
 
-            return $this->redirectToRoute('app_login');
+            return $this->redirectToRoute(SecurityController::ROUTE_LOGIN);
         }
 
         return $this->render('registration/register.html.twig', [

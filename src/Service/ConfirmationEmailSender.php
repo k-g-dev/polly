@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Controller\Auth\AccountVerificationController;
 use App\Entity\User;
 use App\Enum\Array\EmptyValuesSkipMode;
 use App\Helper\DateTime\DurationHelper;
@@ -23,12 +24,12 @@ class ConfirmationEmailSender
     public function send(User $user): void
     {
         $this->emailVerifier->sendEmailConfirmation(
-            'app_verify_email',
+            AccountVerificationController::ROUTE_VERIFY_EMAIL,
             $user,
             (new TemplatedEmail())
                 ->from(new Address($this->emailFrom, $this->emailName))
                 ->to((string) $user->getEmail())
-                ->subject('Please Confirm your Email')
+                ->subject('Please confirm your email')
                 ->htmlTemplate('email/auth/confirmation_email.html.twig'),
         );
     }

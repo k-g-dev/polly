@@ -6,7 +6,7 @@ use App\Twig\Extension\AppExtension;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-class AppExtensionTest extends TestCase
+final class AppExtensionTest extends TestCase
 {
     private AppExtension $appExtension;
 

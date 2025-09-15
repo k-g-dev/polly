@@ -18,6 +18,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     use TimestampableEntity;
 
+    private const DEFAULT_ROLE = AuthorizationRole::User->value;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -43,7 +45,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private bool $isVerified = false;
 
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $agreedTermsAt = null;
 
     public function getId(): ?int
@@ -80,7 +82,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $roles = $this->roles;
         // guarantee every user at least has ROLE_USER
-        $roles[] = AuthorizationRole::User->value;
+        $roles[] = self::DEFAULT_ROLE;
 
         return array_unique($roles);
     }
@@ -90,14 +92,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function setRoles(?AuthorizationRole ...$roles): static
     {
-        $authorizationRoles = array_values(
-            array_unique(array_filter($roles), SORT_REGULAR)
+        $filteredRoles = array_filter(
+            $roles,
+            fn(?AuthorizationRole $role): bool => !empty($role) && ($role !== $role::from(self::DEFAULT_ROLE)),
         );
 
-        $this->roles = array_map(
-            fn (AuthorizationRole $role): string => $role->value,
-            $authorizationRoles,
-        );
+        $this->roles = AuthorizationRole::enumsToUniqueValues(...$filteredRoles);
 
         return $this;
     }
@@ -115,17 +115,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->password = $password;
 
         return $this;
-    }
-
-    /**
-     * Ensure the session doesn't contain actual password hashes by CRC32C-hashing them, as supported since Symfony 7.3.
-     */
-    public function __serialize(): array
-    {
-        $data = (array) $this;
-        $data["\0" . self::class . "\0password"] = hash('crc32c', $this->password);
-
-        return $data;
     }
 
     #[\Deprecated]
@@ -151,10 +140,26 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->agreedTermsAt;
     }
 
-    public function agreeTerms(): static
+    public function hasAgreedToTerms(): bool
+    {
+        return $this->getAgreedTermsAt() !== null;
+    }
+
+    public function agreeToTerms(): static
     {
         $this->agreedTermsAt = new \DateTimeImmutable();
 
         return $this;
+    }
+
+    /**
+     * Ensure the session doesn't contain actual password hashes by CRC32C-hashing them, as supported since Symfony 7.3.
+     */
+    public function __serialize(): array
+    {
+        $data = (array) $this;
+        $data["\0" . self::class . "\0password"] = hash('crc32c', $this->password);
+
+        return $data;
     }
 }

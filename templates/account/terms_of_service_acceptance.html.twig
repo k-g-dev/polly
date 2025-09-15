@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ parent() }}: Terms of Service acceptance{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-xl-6">
+                <h1 class="h3 mb-3">Terms of Service acceptance</h1>
+
+                <div class="alert alert-warning">Until you accept the terms of service, you will not be able to access your account.</div>
+
+                {{ form_start(agreeToTermsForm) }}
+                    {{ form_row(agreeToTermsForm.agreeTerms) }}
+                    <button type="submit" class="btn btn-primary mt-2 w-100">Submit</button>
+                {{ form_end(agreeToTermsForm) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

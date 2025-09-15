@@ -17,10 +17,22 @@ class UserManager
     public function create(User $user, string $plainPassword, ?bool $agreeToTerms = false): void
     {
         if ($agreeToTerms) {
-            $user->agreeTerms();
+            $user->agreeToTerms();
         }
 
         $user->setPassword($this->userPasswordHasher->hashPassword($user, $plainPassword));
+
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+    }
+
+    public function agreeToTerms(User $user): void
+    {
+        if ($user->hasAgreedToTerms()) {
+            return;
+        }
+
+        $user->agreeToTerms();
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();
