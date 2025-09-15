@@ -12,12 +12,12 @@
             padding: 0 5px;
 
             &:first-child {
-                color: lightseagreen;
+                color: $logo-color-first;
                 padding-left: 0;
             }
 
             &:nth-child(2) {
-                color: maroon;
+                color: $logo-color-second;
             }
 
             &:nth-child(3) {
@@ -60,6 +60,38 @@
         }
     }
 
+    &__account-menu {
+        @extend .dropdown;
+        margin-left: auto;
+        margin-right: 0.5rem;
+
+        &-toggler {
+            $padding-x: 0.438rem;
+
+            @extend .btn;
+            @extend .btn-secondary;
+            @extend .dropdown-toggle;
+            padding-top: $padding-x;
+            padding-bottom: $padding-x;
+        }
+
+        &-dropdown {
+            @extend .dropdown-menu;
+
+            &-item {
+                @extend .dropdown-item;
+
+                &:hover {
+                    color: $logo-color-second;
+                }
+
+                &:active {
+                    background-color: $dropdown-link-hover-bg;
+                }
+            }
+        }
+    }
+
     &__sign-buttons {
         display: flex;
         flex-direction: column;
@@ -80,15 +112,19 @@
         &--up {
             @extend .btn-outline-primary;
         }
-
-        &--out {
-            @extend .btn-outline-secondary;
-        }
     }
 
     @include media-breakpoint-up(md)  {
         &__nav {
             margin-bottom: 0;
+        }
+
+        &__account-menu {
+            margin-right: 0;
+
+            &-toggler {
+                @include btn-sm;
+            }
         }
 
         &__sign-buttons {

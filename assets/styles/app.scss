@@ -1,7 +1,7 @@
 @import "./fonts/ibm_plex_sans";
 @import "./fonts/ibm_plex_mono";
-@import "./helper/variables";
-@import "~bootstrap";
+@import "./abstracts";
+@import "./vendors/bootstrap";
 @import "./layout/header";
 @import "./layout/footer";
 

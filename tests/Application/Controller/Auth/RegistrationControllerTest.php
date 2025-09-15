@@ -37,6 +37,8 @@ final class RegistrationControllerTest extends WebTestCase
         ],
     ];
 
+    private const REGISTRATION_FORM_SUBMIT_BUTTON_TEXT = 'Create an account';
+
     private static ArrayHelper $arrayHelper;
 
     private KernelBrowser $client;
@@ -60,7 +62,7 @@ final class RegistrationControllerTest extends WebTestCase
         self::assertPageTitleContains('Sign up');
         self::assertSelectorTextSame('h1', 'Sign up');
 
-        $form = $crawler->selectButton('Create account')->form();
+        $form = $crawler->selectButton(self::REGISTRATION_FORM_SUBMIT_BUTTON_TEXT)->form();
 
         foreach (self::$arrayHelper->flatten(self::REGISTRATION_FORM_FIELDS) as $fieldName) {
             self::assertTrue($form->has($fieldName), "The \"{$fieldName}\" field not exist in login form.");
@@ -72,7 +74,7 @@ final class RegistrationControllerTest extends WebTestCase
         // Register a new user.
         $this->client->request('GET', '/register');
 
-        $this->client->submitForm('Create account', [
+        $this->client->submitForm(self::REGISTRATION_FORM_SUBMIT_BUTTON_TEXT, [
             self::REGISTRATION_FORM_FIELDS['email'] => self::VALID_REGISTRATION_FORM_DATA['email'],
 
             self::REGISTRATION_FORM_FIELDS['plainPassword']['first']
@@ -133,7 +135,7 @@ final class RegistrationControllerTest extends WebTestCase
         $this->client->request('GET', '/register');
         self::assertResponseIsSuccessful();
 
-        $this->client->submitForm('Create account', [
+        $this->client->submitForm(self::REGISTRATION_FORM_SUBMIT_BUTTON_TEXT, [
             self::REGISTRATION_FORM_FIELDS['email'] => $formData['email'],
             self::REGISTRATION_FORM_FIELDS['plainPassword']['first'] => $formData['plainPassword']['first'],
             self::REGISTRATION_FORM_FIELDS['plainPassword']['second'] => $formData['plainPassword']['second'],
@@ -177,7 +179,7 @@ final class RegistrationControllerTest extends WebTestCase
         $this->client->request('GET', '/register');
         self::assertResponseIsSuccessful();
 
-        $this->client->submitForm('Create account', [
+        $this->client->submitForm(self::REGISTRATION_FORM_SUBMIT_BUTTON_TEXT, [
             self::REGISTRATION_FORM_FIELDS['email'] => self::VALID_REGISTRATION_FORM_DATA['email'],
 
             self::REGISTRATION_FORM_FIELDS['plainPassword']['first']

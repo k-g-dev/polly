@@ -1,5 +1,5 @@
 <header>
-    <nav class="navigation-bar fixed-top bg-body-tertiary" data-bs-theme="light">
+    <nav class="navigation-bar navbar fixed-top bg-body-tertiary" data-bs-theme="light">
         <div class="container-xxl">
             <a class="navigation-bar__brand font-ibm-plex-mono" href="{{ path(constant('App\\Controller\\MainController::ROUTE_HOMEPAGE')) }}">
                 <span class="navigation-bar__brand-letter">P</span>
@@ -8,6 +8,21 @@
                 <span class="navigation-bar__brand-letter">L</span>
                 <span class="navigation-bar__brand-letter">Y</span>
             </a>
+
+            {% if is_granted('IS_AUTHENTICATED') %}
+                <div class="navigation-bar__account-menu order-md-1">
+                    <button class="navigation-bar__account-menu-toggler" data-bs-toggle="dropdown" aria-expanded="false">My account</button>
+                    <ul class="navigation-bar__account-menu-dropdown dropdown-menu dropdown-menu-md-end">
+                        {% if is_granted(enum('App\\Enum\\AuthorizationRole').Admin.value) %}
+                            <li><a class="navigation-bar__account-menu-dropdown-item" href="{{ path(constant('App\\Controller\\Admin\\DashboardController::ROUTE_INDEX')) }}">Admin area</a></li>
+                        {% endif %}
+                        <li><a class="navigation-bar__account-menu-dropdown-item" href="{{ path(constant('App\\Controller\\AccountController::ROUTE_INDEX')) }}">Profile</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="navigation-bar__account-menu-dropdown-item" href="{{ path(constant('App\\Controller\\Auth\\SecurityController::ROUTE_LOGOUT')) }}">Sign out</a></li>
+                    </ul>
+                </div>
+            {% endif %}
+
             <button class="navigation-bar__toggler"
                     type="button"
                     data-bs-toggle="collapse"
@@ -18,20 +33,19 @@
             >
                 <span class="navigation-bar__toggler-icon"></span>
             </button>
-            <div class="navigation-bar__collapse collapse" id="navbarCollapse">
-                <ul class="navigation-bar__nav">
+            <div class="navigation-bar__collapse collapse order-md-0" id="navbarCollapse">
+                <ul class="navigation-bar__nav navbar-nav">
                     <li class="navigation-bar__nav-item">
                         <a class="navigation-bar__nav-link" href="{{ path(constant('App\\Controller\\MainController::ROUTE_HOMEPAGE')) }}">Home</a>
                     </li>
                 </ul>
-                <div class="navigation-bar__sign-buttons">
-                {% if is_granted(enum('App\\Enum\\AuthorizationRole').User.value) %}
-                    <a class="navigation-bar__sign-button navigation-bar__sign-button--out" href="{{ path(constant('App\\Controller\\Auth\\SecurityController::ROUTE_LOGOUT')) }}">Sign out</a>
-                {% else %}
-                    <a class="navigation-bar__sign-button navigation-bar__sign-button--in" href="{{ path(constant('App\\Controller\\Auth\\SecurityController::ROUTE_LOGIN')) }}">Sign in</a>
-                    <a class="navigation-bar__sign-button navigation-bar__sign-button--up" href="{{ path(constant('App\\Controller\\Auth\\RegistrationController::ROUTE_REGISTER')) }}">Sign up</a>
+
+                {% if not is_granted('IS_AUTHENTICATED') %}
+                    <div class="navigation-bar__sign-buttons">
+                        <a class="navigation-bar__sign-button navigation-bar__sign-button--in" href="{{ path(constant('App\\Controller\\Auth\\SecurityController::ROUTE_LOGIN')) }}">Sign in</a>
+                        <a class="navigation-bar__sign-button navigation-bar__sign-button--up" href="{{ path(constant('App\\Controller\\Auth\\RegistrationController::ROUTE_REGISTER')) }}">Sign up</a>
+                    </div>
                 {% endif %}
-                </div>
             </div>
         </div>
     </nav>
