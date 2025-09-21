@@ -4,7 +4,7 @@ namespace App\Form;
 
 use App\Entity\User;
 use App\Form\Type\AgreeToTermsType;
-use App\Form\Type\RepeatedPasswordType;
+use App\Form\Type\PasswordRepeatedType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -18,7 +18,7 @@ class RegistrationFormType extends AbstractType
             ->add('agreeTerms', AgreeToTermsType::class, [
                 'mapped' => false,
             ])
-            ->add('plainPassword', RepeatedPasswordType::class, [
+            ->add('plainPassword', PasswordRepeatedType::class, [
                 'mapped' => false,
                 'sequentially_validation' => $options['password_sequentially_validation'],
             ])

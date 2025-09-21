@@ -40,7 +40,7 @@ services:
     App\Service\PasswordRequirementsInfo\PasswordRequirementsInfoCli:
         factory: ['@App\Service\PasswordRequirementsInfo\PasswordRequirementsInfoFactory', 'createCli']
 
-    App\Form\Type\RepeatedPasswordType:
+    App\Form\Type\PasswordRepeatedType:
         bind:
             App\Service\PasswordRequirementsInfo\PasswordRequirementsInfoInterface: '@App\Service\PasswordRequirementsInfo\PasswordRequirementsInfoHtml'
 

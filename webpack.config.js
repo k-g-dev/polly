@@ -20,8 +20,8 @@ Encore
      * Each entry will result in one JavaScript file (e.g. app.js)
      * and one CSS file (e.g. app.css) if your JavaScript imports CSS.
      */
-    .addEntry('app', './assets/app.js')
-    .addEntry('register', './assets/register.js')
+    .addEntry('app', './assets/scripts/app.js')
+    .addEntry('password-repeated-form-type', './assets/scripts/password-repeated-form-type.js')
 
     // When enabled, Webpack "splits" your files into smaller pieces for greater optimization.
     .splitEntryChunks()

@@ -22,10 +22,10 @@ class PasswordRequirementsTest extends CompoundConstraintTestCase
 
     public function createCompound(): Assert\Compound
     {
-        return new PasswordRequirements([
-            'passwordMinLength' => self::PASSWORD_MIN_LENGTH,
-            'sequentiallyValidation' => self::$sequntiallyValidation,
-        ]);
+        return new PasswordRequirements(
+            passwordMinLength: self::PASSWORD_MIN_LENGTH,
+            sequentiallyValidation: self::$sequntiallyValidation,
+        );
     }
 
     public function testValidPassword(): void

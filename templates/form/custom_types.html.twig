@@ -1,5 +1,5 @@
-{% block repeated_password_row %}
-    <div class="js-repeated-password-wrapper">
+{% block password_repeated_row %}
+    <div class="js-password-repeated-wrapper">
         <div class="mb-3">
             {{ form_label(form.first) }}
             {{ form_widget(form.first) }}
@@ -22,7 +22,11 @@
                 </div>
             </div>
 
-            {{ form_errors(form.first, { 'attr': {'class': 'mt-2'} }) }}
+            {% if form_errors(form.first) is not empty %}
+                <div class="mt-2">
+                    {{ form_errors(form.first) }}
+                </div>
+            {% endif %}
         </div>
 
         {{ form_row(form.second) }}

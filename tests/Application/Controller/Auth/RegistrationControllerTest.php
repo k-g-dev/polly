@@ -65,8 +65,12 @@ final class RegistrationControllerTest extends WebTestCase
         $form = $crawler->selectButton(self::REGISTRATION_FORM_SUBMIT_BUTTON_TEXT)->form();
 
         foreach (self::$arrayHelper->flatten(self::REGISTRATION_FORM_FIELDS) as $fieldName) {
-            self::assertTrue($form->has($fieldName), "The \"{$fieldName}\" field not exist in login form.");
+            self::assertTrue($form->has($fieldName), "The \"{$fieldName}\" field not exist in the registration form.");
         }
+
+        $passwordRequirementsBtn = $crawler->filter('form button[data-bs-target="#passwordRequirements"]');
+        self::assertCount(1, $passwordRequirementsBtn, 'There is no button displaying the full password requirements.');
+        self::assertStringContainsStringIgnoringCase('password requirements', $passwordRequirementsBtn->text());
     }
 
     public function testRegister(): void

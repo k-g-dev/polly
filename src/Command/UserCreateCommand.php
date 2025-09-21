@@ -2,7 +2,6 @@
 
 namespace App\Command;
 
-use App\Const\Authentication;
 use App\Entity\User;
 use App\Enum\AuthorizationRole;
 use App\Helper\Validator\ValidationHelper;
@@ -64,10 +63,7 @@ class UserCreateCommand extends Command
         }
 
         $plainPassword = $this->askHiddenWithWarning($io, 'Enter password', $this->validationHelper->createCallable(
-            new PasswordRequirements([
-                'passwordMinLength' => $this->passwordMinLength,
-                'sequentiallyValidation' => true,
-            ]),
+            new PasswordRequirements($this->passwordMinLength),
         ));
 
         $io->askHidden('Repeat password', $this->validationHelper->createCallable(

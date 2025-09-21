@@ -1,10 +1,10 @@
-export default class RepeatedPasswordType {
+export default class PasswordRepeatedType {
     #wrapperElement;
     #passwordRequirementsElement;
     #togglerActionInfoElement;
 
     init() {
-        this.#wrapperElement = document.querySelector('.js-repeated-password-wrapper');
+        this.#wrapperElement = document.querySelector('.js-password-repeated-wrapper');
         this.#togglerActionInfoElement
             = this.#wrapperElement.querySelector('.js-toggler-action-info');
         this.#passwordRequirementsElement = document.getElementById('passwordRequirements');
