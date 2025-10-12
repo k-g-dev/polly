@@ -2,11 +2,11 @@
 
 namespace App\Form;
 
-use App\Entity\User;
+use App\Form\Model\UserRegistration;
 use App\Form\Type\AgreeToTermsType;
-use App\Form\Type\PasswordRepeatedType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class RegistrationFormType extends AbstractType
@@ -16,10 +16,10 @@ class RegistrationFormType extends AbstractType
         $builder
             ->add('email')
             ->add('agreeTerms', AgreeToTermsType::class, [
-                'mapped' => false,
+                'constraints' => [],
             ])
-            ->add('plainPassword', PasswordRepeatedType::class, [
-                'mapped' => false,
+            ->add('password', PasswordFormType::class, [
+                'label' => false,
                 'sequentially_validation' => $options['password_sequentially_validation'],
             ])
         ;
@@ -28,7 +28,10 @@ class RegistrationFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => User::class,
+            'data_class' => UserRegistration::class,
+            'empty_data' => function (FormInterface $form): UserRegistration {
+                return new UserRegistration();
+            },
             'password_sequentially_validation' => false,
         ]);
 

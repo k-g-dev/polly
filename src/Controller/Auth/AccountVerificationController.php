@@ -10,8 +10,9 @@ use App\Enum\FlashMessageType;
 use App\Helper\DateTime\DurationHelper;
 use App\Repository\UserRepository;
 use App\Security\EmailVerifier;
-use App\Service\ConfirmationEmailSender;
+use App\Service\EmailSender\ConfirmationEmailSender;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\RateLimiter\RateLimiterFactoryInterface;
@@ -21,8 +22,8 @@ use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 
 final class AccountVerificationController extends AbstractController
 {
-    public const ROUTE_VERIFY_EMAIL = 'app_account_verify_email';
     public const ROUTE_RESEND_VERIFICATION_EMAIL = 'app_account_resend_verification_email';
+    public const ROUTE_VERIFY_EMAIL = 'app_account_verify_email';
 
     #[Route('/verification/account/email', name: 'app_account_verify_email', methods: [Request::METHOD_GET])]
     public function verifyEmail(
@@ -61,7 +62,8 @@ final class AccountVerificationController extends AbstractController
         Request $request,
         UserRepository $userRepostory,
         ConfirmationEmailSender $confirmationEmailSender,
-        RateLimiterFactoryInterface $accountVerificationEmailResendLimiter,
+        #[Target('account_verification_email_resend.limiter')]
+        RateLimiterFactoryInterface $rateLimiter,
         DurationHelper $durationHelper,
     ): Response {
         $email = $request->getSession()->get(Authentication::NON_VERIFIED_EMAIL);
@@ -69,8 +71,6 @@ final class AccountVerificationController extends AbstractController
         if (!$email) {
             throw $this->createAccessDeniedException();
         }
-
-        $limiter = $accountVerificationEmailResendLimiter->create($email);
 
         if ($request->isMethod(Request::METHOD_POST)) {
             /** @var User $user */
@@ -85,7 +85,7 @@ final class AccountVerificationController extends AbstractController
                 return $this->redirectToRoute(SecurityController::ROUTE_LOGIN);
             }
 
-            $rateLimit = $limiter->consume();
+            $rateLimit = $rateLimiter->create($email)->consume();
 
             if ($rateLimit->isAccepted()) {
                 $confirmationEmailSender->send($user);

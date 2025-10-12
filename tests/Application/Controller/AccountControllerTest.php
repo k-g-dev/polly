@@ -23,10 +23,10 @@ final class AccountControllerTest extends WebTestCase
 
     private const PASSWORD_CHANGE_FORM_FIELDS = [
         'csrfToken' => 'password_change_form[_token]',
-        'oldPassword' => 'password_change_form[oldPassword]',
-        'newPassword' => [
-            'first' => 'password_change_form[newPassword][first]',
-            'second' => 'password_change_form[newPassword][second]',
+        'oldPlainPassword' => 'password_change_form[oldPlainPassword]',
+        'plainPassword' => [
+            'first' => 'password_change_form[plainPassword][first]',
+            'second' => 'password_change_form[plainPassword][second]',
         ],
     ];
 
@@ -95,7 +95,7 @@ final class AccountControllerTest extends WebTestCase
         self::assertFalse($sessionAfterAcceptTerms->has(Common::AGREE_TO_TERMS_TARGET_URL_AFTER));
     }
 
-    public function testPasswordChangePageLoadSuccessfully(): void
+    public function testPasswordChangePageLoadsSuccessfully(): void
     {
         $user = UserFactory::createOne();
         $this->client->loginUser($user->_real());
@@ -130,9 +130,9 @@ final class AccountControllerTest extends WebTestCase
         $newPassword = UserFactory::USER_DEFAULT_PASSWORD . 'x';
 
         $this->client->submitForm(self::PASSWORD_CHANGE_FORM_SUBMIT_BUTTON_TEXT, [
-            self::PASSWORD_CHANGE_FORM_FIELDS['oldPassword'] => UserFactory::USER_DEFAULT_PASSWORD,
-            self::PASSWORD_CHANGE_FORM_FIELDS['newPassword']['first'] => $newPassword,
-            self::PASSWORD_CHANGE_FORM_FIELDS['newPassword']['second'] => $newPassword,
+            self::PASSWORD_CHANGE_FORM_FIELDS['oldPlainPassword'] => UserFactory::USER_DEFAULT_PASSWORD,
+            self::PASSWORD_CHANGE_FORM_FIELDS['plainPassword']['first'] => $newPassword,
+            self::PASSWORD_CHANGE_FORM_FIELDS['plainPassword']['second'] => $newPassword,
         ]);
 
         self::assertNotSame($oldHashedPassword, $user->getPassword());
@@ -154,9 +154,9 @@ final class AccountControllerTest extends WebTestCase
         $oldHashedPassword = $user->getPassword();
 
         $this->client->submitForm(self::PASSWORD_CHANGE_FORM_SUBMIT_BUTTON_TEXT, [
-            self::PASSWORD_CHANGE_FORM_FIELDS['oldPassword'] => $formData['oldPassword'],
-            self::PASSWORD_CHANGE_FORM_FIELDS['newPassword']['first'] => $formData['newPassword']['first'],
-            self::PASSWORD_CHANGE_FORM_FIELDS['newPassword']['second'] => $formData['newPassword']['second'],
+            self::PASSWORD_CHANGE_FORM_FIELDS['oldPlainPassword'] => $formData['oldPlainPassword'],
+            self::PASSWORD_CHANGE_FORM_FIELDS['plainPassword']['first'] => $formData['plainPassword']['first'],
+            self::PASSWORD_CHANGE_FORM_FIELDS['plainPassword']['second'] => $formData['plainPassword']['second'],
         ]);
 
         self::assertSame($oldHashedPassword, $user->getPassword());
@@ -169,38 +169,38 @@ final class AccountControllerTest extends WebTestCase
     {
         yield 'Empty current password' => [
             'formData' => [
-                'oldPassword' => '',
-                'newPassword' => [
+                'oldPlainPassword' => '',
+                'plainPassword' => [
                     'first' => UserFactory::USER_DEFAULT_PASSWORD . 'y',
-                    'second' => UserFactory::USER_DEFAULT_PASSWORD . 'y'
+                    'second' => UserFactory::USER_DEFAULT_PASSWORD . 'y',
                 ],
             ],
         ];
 
         yield 'Invalid current password' => [
             'formData' => [
-                'oldPassword' => UserFactory::USER_DEFAULT_PASSWORD . 'x',
-                'newPassword' => [
+                'oldPlainPassword' => UserFactory::USER_DEFAULT_PASSWORD . 'x',
+                'plainPassword' => [
                     'first' => UserFactory::USER_DEFAULT_PASSWORD . 'y',
-                    'second' => UserFactory::USER_DEFAULT_PASSWORD . 'y'
+                    'second' => UserFactory::USER_DEFAULT_PASSWORD . 'y',
                 ],
             ],
         ];
 
         yield 'Empty new password' => [
             'formData' => [
-                'oldPassword' => UserFactory::USER_DEFAULT_PASSWORD,
-                'newPassword' => [
+                'oldPlainPassword' => UserFactory::USER_DEFAULT_PASSWORD,
+                'plainPassword' => [
                     'first' => '',
-                    'second' => UserFactory::USER_DEFAULT_PASSWORD . 'y'
+                    'second' => UserFactory::USER_DEFAULT_PASSWORD . 'y',
                 ],
             ],
         ];
 
         yield 'Empty new password repeat' => [
             'formData' => [
-                'oldPassword' => UserFactory::USER_DEFAULT_PASSWORD,
-                'newPassword' => [
+                'oldPlainPassword' => UserFactory::USER_DEFAULT_PASSWORD,
+                'plainPassword' => [
                     'first' => UserFactory::USER_DEFAULT_PASSWORD . 'y',
                     'second' => '',
                 ],
@@ -209,8 +209,8 @@ final class AccountControllerTest extends WebTestCase
 
         yield 'New password repeat does not match the new password' => [
             'formData' => [
-                'oldPassword' => UserFactory::USER_DEFAULT_PASSWORD,
-                'newPassword' => [
+                'oldPlainPassword' => UserFactory::USER_DEFAULT_PASSWORD,
+                'plainPassword' => [
                     'first' => UserFactory::USER_DEFAULT_PASSWORD . 'y',
                     'second' => '',
                 ],
@@ -219,8 +219,8 @@ final class AccountControllerTest extends WebTestCase
 
         yield 'Invalid new password' => [
             'formData' => [
-                'oldPassword' => UserFactory::USER_DEFAULT_PASSWORD,
-                'newPassword' => [
+                'oldPlainPassword' => UserFactory::USER_DEFAULT_PASSWORD,
+                'plainPassword' => [
                     'first' => strtolower(UserFactory::USER_DEFAULT_PASSWORD . 'y'),
                     'second' => strtolower(UserFactory::USER_DEFAULT_PASSWORD . 'y'),
                 ],
@@ -229,8 +229,8 @@ final class AccountControllerTest extends WebTestCase
 
         yield 'New password the same as current' => [
             'formData' => [
-                'oldPassword' => UserFactory::USER_DEFAULT_PASSWORD,
-                'newPassword' => [
+                'oldPlainPassword' => UserFactory::USER_DEFAULT_PASSWORD,
+                'plainPassword' => [
                     'first' => UserFactory::USER_DEFAULT_PASSWORD,
                     'second' => UserFactory::USER_DEFAULT_PASSWORD,
                 ],

@@ -3,6 +3,7 @@
 namespace App\Manager;
 
 use App\Entity\User;
+use App\Form\Model\UserRegistration;
 use Doctrine\ORM\EntityManagerInterface;
 
 class UserManager
@@ -13,16 +14,21 @@ class UserManager
     ) {
     }
 
-    public function create(User $user, string $plainPassword, ?bool $agreeToTerms = false): void
+    public function create(UserRegistration $dto, User $user = null): User
     {
-        if ($agreeToTerms) {
+        $user ??= new User();
+        $user->setEmail($dto->email);
+
+        if ($dto->agreeTerms) {
             $user->agreeToTerms();
         }
 
-        $this->userPasswordManager->setHashedPassword($user, $plainPassword);
+        $this->userPasswordManager->setHashedPassword($user, $dto->password->plainPassword);
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();
+
+        return $user;
     }
 
     public function agreeToTerms(User $user): void

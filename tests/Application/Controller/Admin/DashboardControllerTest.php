@@ -2,6 +2,7 @@
 
 namespace App\Tests\Application\Controller\Admin;
 
+use App\Controller\MainController;
 use App\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -35,7 +36,11 @@ final class DashboardControllerTest extends WebTestCase
         $this->client->loginUser($user->_real());
 
         $this->client->request('GET', '/admin');
-        self::assertResponseStatusCodeSame(403);
+        self::assertResponseRedirects();
+        $this->client->followRedirect();
+
+        self::assertRouteSame(MainController::ROUTE_HOMEPAGE);
+        self::assertSelectorTextSame('.alert-danger', 'Access denied.');
     }
 
     public function testAnonymousUserDoesNotHaveAccessToAdminDashboard(): void

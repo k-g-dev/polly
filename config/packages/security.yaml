@@ -28,6 +28,7 @@ security:
                 # target: app_any_route
             custom_authenticators:
                 - App\Security\LoginFormAuthenticator
+            access_denied_handler: App\Security\AccessDeniedHandler
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
@@ -40,6 +41,7 @@ security:
     access_control:
         - { path: ^/admin, roles: !php/enum App\Enum\AuthorizationRole::Admin->value }
         - { path: ^/account, roles: !php/enum App\Enum\AuthorizationRole::User->value }
+        - { path: ^/reset-password, allow_if: '!is_authenticated()' }
 
 when@test:
     security:

@@ -4,21 +4,19 @@ namespace App\Command;
 
 use App\Entity\User;
 use App\Enum\AuthorizationRole;
+use App\Form\Model\Password;
+use App\Form\Model\UserRegistration;
 use App\Helper\Validator\ValidationHelper;
 use App\Helper\Validator\ValidatorHelper;
 use App\Manager\UserManager;
 use App\Service\PasswordRequirementsInfo\PasswordRequirementsInfoInterface;
 use App\Trait\Command\AskHiddenWithWarningTrait;
-use App\Validator\PasswordRequirements;
-use App\Validator\UserEmailUnique;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\IdenticalTo;
 use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Sequentially;
 
 #[AsCommand(
     name: 'app:user:create',
@@ -44,14 +42,13 @@ class UserCreateCommand extends Command
 
     public function __invoke(SymfonyStyle $io): int
     {
+        $userRegistrationDto = new UserRegistration();
+
         $io->title('New user creator');
 
-        $email = $io->ask('Enter email', null, $this->validatorHelper->createCallable(
-            new Sequentially([
-                new NotBlank(),
-                new Email(),
-                new UserEmailUnique(),
-            ]),
+        $io->ask('Enter email', null, $this->validatorHelper->createPropertyValueValidatorCallable(
+            $userRegistrationDto,
+            'email',
         ));
 
         $io->section('Password');
@@ -62,18 +59,22 @@ class UserCreateCommand extends Command
             $io->text($this->passwordRequirementsInfo->getInfoFull());
         }
 
-        $plainPassword = $this->askHiddenWithWarning($io, 'Enter password', $this->validationHelper->createCallable(
-            new PasswordRequirements($this->passwordMinLength),
+        $passwordDto = new Password($this->passwordMinLength);
+        $this->askHiddenWithWarning($io, 'Enter password', $this->validatorHelper->createPropertyValueValidatorCallable(
+            $passwordDto,
+            'plainPassword',
         ));
 
         $io->askHidden('Repeat password', $this->validationHelper->createCallable(
             new NotBlank(),
-            new IdenticalTo(value: $plainPassword, message: 'The passwords do not match.'),
+            new IdenticalTo(value: $passwordDto->plainPassword, message: 'The passwords do not match.'),
         ));
+
+        $userRegistrationDto->password = $passwordDto;
 
         $io->section('Other settings');
 
-        $agreeToTerms = $io->confirm('Agree to terms?', false);
+        $userRegistrationDto->agreeTerms = $io->confirm('Agree to terms?', false);
 
         $roles = $io->choice(
             'Choose authorization roles',
@@ -85,17 +86,15 @@ class UserCreateCommand extends Command
         $io->section('Summary');
 
         $io->definitionList(
-            ['Email' => $email],
-            ['Agree to terms' => $agreeToTerms ? 'yes' : 'no'],
+            ['Email' => $userRegistrationDto->email],
+            ['Agree to terms' => $userRegistrationDto->agreeTerms ? 'yes' : 'no'],
             ['Roles' => implode(', ', $roles)],
         );
 
         if ($io->confirm('Do you want to create this user?', true)) {
-            $user = (new User())
-                ->setEmail($email)
-                ->setRoles(...AuthorizationRole::tryFromMultiple(...$roles));
+            $user = (new User())->setRoles(...AuthorizationRole::tryFromMultiple(...$roles));
 
-            $this->userManager->create($user, $plainPassword, $agreeToTerms);
+            $this->userManager->create($userRegistrationDto, $user);
 
             $io->success('The user has been created.');
         } else {

@@ -22,13 +22,15 @@ class PasswordChangeFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('oldPassword', PasswordType::class, [
+            ->add('oldPlainPassword', PasswordType::class, [
                 'label' => 'Current password',
             ])
-            ->add('newPassword', PasswordRepeatedType::class, [
+            ->add('plainPassword', PasswordRepeatedType::class, [
+                'label' => false,
                 'first_options' => ['label' => 'New password'],
                 'second_options' => ['label' => 'Repeat new password'],
                 'password_min_length' => $options['password_min_length'],
+                'sequentially_validation' => $options['sequentially_validation'],
                 'constraints' => [],
             ])
         ;
@@ -45,9 +47,11 @@ class PasswordChangeFormType extends AbstractType
                     );
                 },
                 'password_min_length' => $this->passwordMinLength,
+                'sequentially_validation' => false,
             ])
         ;
 
         $resolver->setAllowedTypes('password_min_length', 'int');
+        $resolver->setAllowedTypes('sequentially_validation', 'bool');
     }
 }

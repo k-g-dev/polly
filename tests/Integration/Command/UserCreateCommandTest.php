@@ -5,7 +5,9 @@ namespace App\Tests\Integration\Command;
 use App\Entity\User;
 use App\Enum\AuthorizationRole;
 use App\Factory\UserFactory;
+use App\Form\Model\UserRegistration;
 use App\Manager\UserManager;
+use App\Repository\UserRepository;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
@@ -53,8 +55,8 @@ final class UserCreateCommandTest extends KernelTestCase
     {
         $this->skipOnWindows();
 
-        $userManagerMock = $this->prepareUserManagerMock((int) $isUserCreationExpected);
-        static::getContainer()->set(UserManager::class, $userManagerMock);
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        self::assertEmpty($userRepository->findAll());
 
         $this->commandTester->setInputs($inputData);
 
@@ -81,6 +83,8 @@ final class UserCreateCommandTest extends KernelTestCase
             $isUserCreationExpected ? 'The user has been created.' : 'Operation canceled.',
             $output,
         );
+
+        self::assertCount((int) $isUserCreationExpected, $userRepository->findAll());
     }
 
     public static function getExecuteValidInputDataProvider(): \Generator
@@ -141,7 +145,7 @@ final class UserCreateCommandTest extends KernelTestCase
             'expectedErrorMessages' => [
                 $notBlankMessage,
                 (new Assert\Email())->message,
-                'There is already an account with this email.',
+                'Unable to register with this email address.',
             ],
             'inputData' => self::getHappyPathDataWithAdditionalInputs([
                 'emailEmpty' => '',
@@ -210,11 +214,8 @@ final class UserCreateCommandTest extends KernelTestCase
             ->expects($this->exactly($expectedCreateMethodCalls))
             ->method('create')
             ->with(
-                $this->callback(
-                    fn ($arg) => ($arg instanceof User) && ($arg->getEmail() === self::HAPPY_PATH_INPUT_DATA['email']),
-                ),
-                self::HAPPY_PATH_INPUT_DATA['password'],
-                self::HAPPY_PATH_INPUT_DATA['agreeTerms'] === 'yes',
+                self::isInstanceOf(UserRegistration::class),
+                self::isInstanceOf(User::class),
             );
 
         return $userManagerMock;

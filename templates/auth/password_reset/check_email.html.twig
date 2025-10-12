@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ parent() }}: Password reset email sent{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+        <h1 class="h3 mb-3">Password reset email sent</h1>
+
+        <div class="alert alert-info">
+            If an account matching your email exists, then an email was just sent that contains a link that you can use to reset your password.
+            This link will expire in {{ resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }}.
+        </div>
+
+        <p>If you don't receive an email please check your spam folder or <a href="{{ path(constant('App\\Controller\\Auth\\PasswordResetController::ROUTE_REQUEST')) }}">try again</a>.</p>
+    </div>
+{% endblock %}

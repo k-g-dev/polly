@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ parent() }}: Reset your password{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+        <div class="row justify-content-center">
+             <div class="col-md-8 col-xl-6">
+                <h1 class="h3 mb-3">Reset your password</h1>
+
+                {{ form_start(requestForm) }}
+                    {{ form_row(requestForm.email) }}
+                    <div>
+                        <small>Enter the email address you use to log in to the app to receive a password reset link.</small>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary mt-2 w-100">Send password reset email</button>
+                {{ form_end(requestForm) }}
+             </div>
+        </div>
+    </div>
+{% endblock %}

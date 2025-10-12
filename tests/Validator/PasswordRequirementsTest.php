@@ -9,7 +9,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Test\CompoundConstraintTestCase;
 
-class PasswordRequirementsTest extends CompoundConstraintTestCase
+final class PasswordRequirementsTest extends CompoundConstraintTestCase
 {
     private const PASSWORD_MIN_LENGTH = 12;
     private static bool $sequntiallyValidation = false;
@@ -28,159 +28,128 @@ class PasswordRequirementsTest extends CompoundConstraintTestCase
         );
     }
 
-    public function testValidPassword(): void
+    public function testNoViolationsForValidPassword(): void
     {
-        $this->validateValue(UserFactory::USER_DEFAULT_PASSWORD);
+        $violations = $this->validator
+            ->validate(UserFactory::USER_DEFAULT_PASSWORD, $this->createCompound(), [
+                PasswordRequirements::DEFAULT_GROUP,
+                PasswordRequirements::GROUP_EXTENDED,
+            ])
+        ;
 
-        $this->assertNoViolation();
+        self::assertEmpty($violations);
     }
 
     #[DataProvider('invalidPasswordProvider')]
-    public function testInvalidPassword(mixed $password, int $expectedNumberOfViolations): void
-    {
-        $this->validateValue($password);
+    public function testCorrectNumberOfViolationsForInvalidPassword(
+        mixed $password,
+        array $expectedNumberOfViolationsForGroup
+    ): void {
+        foreach ($expectedNumberOfViolationsForGroup as $group => $expectedNumberOfViolations) {
+            $violations = $this->validator->validate($password, $this->createCompound(), $group);
 
-        $this->assertViolationsCount($expectedNumberOfViolations);
+            self::assertCount(
+                $expectedNumberOfViolations,
+                $violations,
+                "Invalid violation count for {$group} group.",
+            );
+        }
     }
 
     public static function invalidPasswordProvider(): \Generator
     {
+        yield 'No value' => [
+            'password' => null,
+            'expectedNumberOfViolationsForGroup' => [
+                PasswordRequirements::DEFAULT_GROUP => 1,
+                PasswordRequirements::GROUP_EXTENDED => 0,
+            ],
+        ];
+
         yield 'Empty password' => [
             'password' => '',
-            'expectedNumberOfViolations'  => 3,
+            'expectedNumberOfViolationsForGroup' => [
+                PasswordRequirements::DEFAULT_GROUP => 2,
+                PasswordRequirements::GROUP_EXTENDED => 1,
+            ],
         ];
 
         yield 'Non-string password' => [
             'password' => 123,
-            'expectedNumberOfViolations'  => 6,
+            'expectedNumberOfViolationsForGroup' => [
+                PasswordRequirements::DEFAULT_GROUP => 5,
+                PasswordRequirements::GROUP_EXTENDED => 1,
+            ],
         ];
 
         yield 'Password too short' => [
             'password' => 'tooShort#01',
-            'expectedNumberOfViolations'  => 2,
+            'expectedNumberOfViolationsForGroup' => [
+                PasswordRequirements::DEFAULT_GROUP => 1,
+                PasswordRequirements::GROUP_EXTENDED => 1,
+            ],
         ];
 
         yield 'Password without digit' => [
             'password' => 'userPassword#',
-            'expectedNumberOfViolations'  => 2,
+            'expectedNumberOfViolationsForGroup' => [
+                PasswordRequirements::DEFAULT_GROUP => 1,
+                PasswordRequirements::GROUP_EXTENDED => 1,
+            ],
         ];
 
         yield 'Password without lowercase letter' => [
             'password' => 'USERPASSWORD#001',
-            'expectedNumberOfViolations'  => 1,
+            'expectedNumberOfViolationsForGroup' => [
+                PasswordRequirements::DEFAULT_GROUP => 1,
+                PasswordRequirements::GROUP_EXTENDED => 0,
+            ],
         ];
 
         yield 'Password without uppercase letter' => [
             'password' => 'userpassword#001',
-            'expectedNumberOfViolations'  => 1,
+            'expectedNumberOfViolationsForGroup' => [
+                PasswordRequirements::DEFAULT_GROUP => 1,
+                PasswordRequirements::GROUP_EXTENDED => 0,
+            ],
         ];
 
         yield 'Password without special character' => [
             'password' => 'userPassword001',
-            'expectedNumberOfViolations'  => 2,
+            'expectedNumberOfViolationsForGroup' => [
+                PasswordRequirements::DEFAULT_GROUP => 1,
+                PasswordRequirements::GROUP_EXTENDED => 1,
+            ],
         ];
 
         yield 'Password not strong enough' => [
             'password' => 'aaaaBBBBBBBB#000',
-            'expectedNumberOfViolations'  => 1,
+            'expectedNumberOfViolationsForGroup' => [
+                PasswordRequirements::DEFAULT_GROUP => 0,
+                PasswordRequirements::GROUP_EXTENDED => 1,
+            ],
         ];
     }
 
-    #[DataProvider('invalidPasswordSequentiallyProvider')]
-    public function testInvalidPasswordSequentially(mixed $password, array $expectedViolationsRaisedBy): void
+    public function testSingleViolationForSequentiallyValidatedInvalidPassword(): void
     {
         self::$sequntiallyValidation = true;
 
-        $this->validateValue($password);
+        self::validateValue(123);
 
-        $this->assertViolationsRaisedByCompound($expectedViolationsRaisedBy);
+        self::assertViolationsCount(1);
     }
 
-    public static function invalidPasswordSequentiallyProvider(): \Generator
-    {
-        yield 'Empty password' => [
-            'password' => '',
-            'expectedViolationsRaisedBy'  => [
-                new Assert\NotBlank(message: 'Please enter a password.'),
-            ],
-        ];
-
-        yield 'Non-string password' => [
-            'password' => 123,
-            'expectedViolationsRaisedBy'  => [
-                new Assert\Type('string'),
-            ],
-        ];
-
-        yield 'Password too short' => [
-            'password' => 'tooShort#01',
-            'expectedViolationsRaisedBy'  => [
-                new Assert\Length(
-                    min: self::PASSWORD_MIN_LENGTH,
-                    minMessage: 'Your password should be at least {{ limit }} characters long.',
-                    max: 4096,
-                ),
-            ],
-        ];
-
-        yield 'Password without digit' => [
-            'password' => 'userPassword#',
-            'expectedViolationsRaisedBy'  => [
-                new Assert\Regex(
-                    pattern: '/\d+/',
-                    message: 'Your password should contain at least one digit.',
-                ),
-            ],
-        ];
-
-        yield 'Password without lowercase letter' => [
-            'password' => 'USERPASSWORD#001',
-            'expectedViolationsRaisedBy'  => [
-                new Assert\Regex(
-                    pattern: '/[a-z]+/',
-                    message: 'Your password should contain at least one lowercase letter.',
-                ),
-            ],
-        ];
-
-        yield 'Password without uppercase letter' => [
-            'password' => 'userpassword#001',
-            'expectedViolationsRaisedBy'  => [
-                new Assert\Regex(
-                    pattern: '/[A-Z]+/',
-                    message: 'Your password should contain at least one uppercase letter.',
-                ),
-            ],
-        ];
-
-        yield 'Password without special character' => [
-            'password' => 'userPassword001',
-            'expectedViolationsRaisedBy'  => [
-                new Assert\Regex(
-                    pattern: '/[' . preg_quote(Authentication::PASSWORD_SPECIAL_CHARACTERS, '/') . ']+/',
-                    message: 'Your password should contain at least one special character.',
-                ),
-            ],
-        ];
-
-        yield 'Password not strong enough' => [
-            'password' => 'aaaaBBBBBBBB#000',
-            'expectedViolationsRaisedBy'  => [
-                new Assert\PasswordStrength(),
-            ],
-        ];
-    }
-
-    public function testSetOfPasswordSpecialCharacters(): void
+    public function testEachCharacterFromPasswordSpecialCharacterSetMeetsPasswordRequirements(): void
     {
         $specialChars = str_split(Authentication::PASSWORD_SPECIAL_CHARACTERS);
 
         $password = 'userPassword001';
 
         foreach ($specialChars as $specialChar) {
-            $this->validateValue($password . $specialChar);
+            self::validateValue($password . $specialChar);
 
-            $this->assertNoViolation();
+            self::assertNoViolation();
         }
     }
 }

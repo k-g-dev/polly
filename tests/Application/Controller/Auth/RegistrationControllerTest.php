@@ -20,7 +20,7 @@ final class RegistrationControllerTest extends WebTestCase
 
     private const VALID_REGISTRATION_FORM_DATA = [
         'email' => 'me@example.com',
-        'plainPassword' => [
+        'password' => [
             'first' => UserFactory::USER_DEFAULT_PASSWORD,
             'second' => UserFactory::USER_DEFAULT_PASSWORD,
         ],
@@ -31,9 +31,9 @@ final class RegistrationControllerTest extends WebTestCase
         'csrfToken' => 'registration_form[_token]',
         'agreeTerms' => 'registration_form[agreeTerms]',
         'email' => 'registration_form[email]',
-        'plainPassword' => [
-            'first' => 'registration_form[plainPassword][first]',
-            'second' => 'registration_form[plainPassword][second]',
+        'password' => [
+            'first' => 'registration_form[password][plainPassword][first]',
+            'second' => 'registration_form[password][plainPassword][second]',
         ],
     ];
 
@@ -55,7 +55,7 @@ final class RegistrationControllerTest extends WebTestCase
         $this->userRepository = static::getContainer()->get(UserRepository::class);
     }
 
-    public function testRegisterPageLoadSuccessfully()
+    public function testRegisterPageLoadsSuccessfully()
     {
         $crawler = $this->client->request('GET', '/register');
         self::assertResponseIsSuccessful();
@@ -81,11 +81,11 @@ final class RegistrationControllerTest extends WebTestCase
         $this->client->submitForm(self::REGISTRATION_FORM_SUBMIT_BUTTON_TEXT, [
             self::REGISTRATION_FORM_FIELDS['email'] => self::VALID_REGISTRATION_FORM_DATA['email'],
 
-            self::REGISTRATION_FORM_FIELDS['plainPassword']['first']
-                => self::VALID_REGISTRATION_FORM_DATA['plainPassword']['first'],
+            self::REGISTRATION_FORM_FIELDS['password']['first']
+                => self::VALID_REGISTRATION_FORM_DATA['password']['first'],
 
-            self::REGISTRATION_FORM_FIELDS['plainPassword']['second']
-                => self::VALID_REGISTRATION_FORM_DATA['plainPassword']['second'],
+            self::REGISTRATION_FORM_FIELDS['password']['second']
+                => self::VALID_REGISTRATION_FORM_DATA['password']['second'],
 
             self::REGISTRATION_FORM_FIELDS['agreeTerms'] => self::VALID_REGISTRATION_FORM_DATA['agreeTerms'],
         ]);
@@ -141,8 +141,8 @@ final class RegistrationControllerTest extends WebTestCase
 
         $this->client->submitForm(self::REGISTRATION_FORM_SUBMIT_BUTTON_TEXT, [
             self::REGISTRATION_FORM_FIELDS['email'] => $formData['email'],
-            self::REGISTRATION_FORM_FIELDS['plainPassword']['first'] => $formData['plainPassword']['first'],
-            self::REGISTRATION_FORM_FIELDS['plainPassword']['second'] => $formData['plainPassword']['second'],
+            self::REGISTRATION_FORM_FIELDS['password']['first'] => $formData['password']['first'],
+            self::REGISTRATION_FORM_FIELDS['password']['second'] => $formData['password']['second'],
             self::REGISTRATION_FORM_FIELDS['agreeTerms'] => $formData['agreeTerms'],
         ]);
 
@@ -158,13 +158,13 @@ final class RegistrationControllerTest extends WebTestCase
         yield 'Invalid email' => [$data01];
 
         $data02 = self::VALID_REGISTRATION_FORM_DATA;
-        $data02['plainPassword']['second'] = 'invalidPassword#001';
+        $data02['password']['second'] = 'invalidPassword#001';
 
         yield 'Not matching passwords' => [$data02];
 
         $data03 = self::VALID_REGISTRATION_FORM_DATA;
-        $data03['plainPassword']['first'] = 'aaaaBBBBBBBB#000';
-        $data03['plainPassword']['second'] = 'aaaaBBBBBBBB#000';
+        $data03['password']['first'] = 'aaaaBBBBBBBB#000';
+        $data03['password']['second'] = 'aaaaBBBBBBBB#000';
 
         yield 'Password not strong enough' => [$data03];
 
@@ -186,11 +186,11 @@ final class RegistrationControllerTest extends WebTestCase
         $this->client->submitForm(self::REGISTRATION_FORM_SUBMIT_BUTTON_TEXT, [
             self::REGISTRATION_FORM_FIELDS['email'] => self::VALID_REGISTRATION_FORM_DATA['email'],
 
-            self::REGISTRATION_FORM_FIELDS['plainPassword']['first']
-                => self::VALID_REGISTRATION_FORM_DATA['plainPassword']['first'],
+            self::REGISTRATION_FORM_FIELDS['password']['first']
+                => self::VALID_REGISTRATION_FORM_DATA['password']['first'],
 
-            self::REGISTRATION_FORM_FIELDS['plainPassword']['second']
-                => self::VALID_REGISTRATION_FORM_DATA['plainPassword']['second'],
+            self::REGISTRATION_FORM_FIELDS['password']['second']
+                => self::VALID_REGISTRATION_FORM_DATA['password']['second'],
 
             self::REGISTRATION_FORM_FIELDS['agreeTerms'] => self::VALID_REGISTRATION_FORM_DATA['agreeTerms'],
         ]);

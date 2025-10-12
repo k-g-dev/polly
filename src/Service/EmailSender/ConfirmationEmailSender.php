@@ -1,36 +1,39 @@
 <?php
 
-namespace App\Service;
+namespace App\Service\EmailSender;
 
+use App\Config\EmailSenderConfig;
 use App\Controller\Auth\AccountVerificationController;
 use App\Entity\User;
 use App\Enum\Array\EmptyValuesSkipMode;
 use App\Helper\DateTime\DurationHelper;
 use App\Security\EmailVerifier;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Mime\Address;
 
-class ConfirmationEmailSender
+class ConfirmationEmailSender implements EmailSenderInterface
 {
     public function __construct(
+        private EmailSenderConfig $config,
         private EmailVerifier $emailVerifier,
         private DurationHelper $durationHelper,
-        private string $emailFrom,
-        private string $emailName,
+        #[Autowire(param: 'app.symfonycasts_verify_email.lifetime')]
         private int $verificationLifetime,
     ) {
     }
 
-    public function send(User $user): void
+    public function send(User $user, array $context = []): void
     {
         $this->emailVerifier->sendEmailConfirmation(
             AccountVerificationController::ROUTE_VERIFY_EMAIL,
             $user,
             (new TemplatedEmail())
-                ->from(new Address($this->emailFrom, $this->emailName))
+                ->from(new Address($this->config->emailFrom, $this->config->emailName))
                 ->to((string) $user->getEmail())
                 ->subject('Please confirm your email')
-                ->htmlTemplate('email/auth/confirmation_email.html.twig'),
+                ->htmlTemplate('email/auth/confirmation_email.html.twig')
+                ->context($context),
         );
     }
 

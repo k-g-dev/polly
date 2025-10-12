@@ -2,11 +2,10 @@
 
 namespace App\Controller\Auth;
 
-use App\Entity\User;
 use App\Enum\FlashMessageType;
 use App\Form\RegistrationFormType;
 use App\Manager\UserManager;
-use App\Service\ConfirmationEmailSender;
+use App\Service\EmailSender\ConfirmationEmailSender;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,15 +21,11 @@ final class RegistrationController extends AbstractController
         ConfirmationEmailSender $confirmationEmailSender,
         UserManager $userManager,
     ): Response {
-        $user = new User();
-        $form = $this->createForm(RegistrationFormType::class, $user);
+        $form = $this->createForm(RegistrationFormType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $plainPassword = $form->get('plainPassword')->getData();
-            $agreeTerms = $form->get('agreeTerms')->getData();
-
-            $userManager->create($user, $plainPassword, $agreeTerms);
+            $user = $userManager->create($form->getData());
 
             $confirmationEmailSender->send($user);
             $this->addFlash(FlashMessageType::Info->value, $confirmationEmailSender->getInstruction());

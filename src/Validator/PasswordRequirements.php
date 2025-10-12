@@ -10,6 +10,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[\Attribute]
 class PasswordRequirements extends Assert\Compound
 {
+    public const GROUP_EXTENDED = 'Extended';
+
     #[HasNamedArguments]
     public function __construct(
         #[Autowire(param: 'app.password.min_length')]
@@ -50,7 +52,7 @@ class PasswordRequirements extends Assert\Compound
                 pattern: '/[' . $specialCharacters . ']+/',
                 message: 'Your password should contain at least one special character.',
             ),
-            new Assert\PasswordStrength(),
+            new Assert\PasswordStrength(groups: [self::GROUP_EXTENDED]),
         ];
 
         return $this->sequentiallyValidation ? [new Assert\Sequentially($constraints)] : $constraints;

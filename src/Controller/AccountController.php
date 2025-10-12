@@ -75,7 +75,7 @@ final class AccountController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $userPasswordManager->changePassword($this->getUser(), $form->getData());
+            $userPasswordManager->changePassword($this->getUser(), $form->getData()->plainPassword);
             $this->addFlash(FlashMessageType::Success->value, 'The password has been changed.');
 
             return $this->redirectToRoute(self::ROUTE_INDEX);

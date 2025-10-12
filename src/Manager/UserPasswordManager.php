@@ -3,7 +3,6 @@
 namespace App\Manager;
 
 use App\Entity\User;
-use App\Form\Model\PasswordChange;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
@@ -20,9 +19,9 @@ class UserPasswordManager
         $user->setPassword($this->userPasswordHasher->hashPassword($user, $plainPassword));
     }
 
-    public function changePassword(User $user, PasswordChange $passwordChangeModel): void
+    public function changePassword(User $user, string $newPlainPassword): void
     {
-        $this->setHashedPassword($user, $passwordChangeModel->newPassword);
+        $this->setHashedPassword($user, $newPlainPassword);
 
         $this->entityManager->flush();
     }

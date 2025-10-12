@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Tests\Integration\Service;
+namespace App\Tests\Integration\Service\EmailSender;
 
 use App\Entity\User;
 use App\Factory\UserFactory;
-use App\Service\ConfirmationEmailSender;
+use App\Service\EmailSender\ConfirmationEmailSender;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zenstruck\Foundry\Test\Factories;
@@ -35,7 +35,7 @@ final class ConfirmationEmailSenderTest extends KernelTestCase
 
         /** @var TemplatedEmail $templatedEmail */
         $templatedEmail = $messages[0];
-        $emailFrom = $container->getParameter('app.email_from');
+        $emailFrom = $container->getParameter('app.email.from');
 
         self::assertEmailAddressContains($templatedEmail, 'from', $emailFrom);
         self::assertEmailAddressContains($templatedEmail, 'to', $user->getEmail());
