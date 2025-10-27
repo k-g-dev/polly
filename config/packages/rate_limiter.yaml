@@ -3,4 +3,8 @@ framework:
         account_verification_email_resend:
             policy: 'fixed_window'
             limit: 1
-            interval: '900 seconds'
+            interval: '15 minutes'
+        account_already_exists_email_reminder:
+            policy: 'fixed_window'
+            limit: 1
+            interval: '1 day'

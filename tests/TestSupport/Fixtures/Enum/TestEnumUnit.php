@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Fixtures\Enum;
+namespace App\Tests\TestSupport\Fixtures\Enum;
 
 use App\Trait\Enum\UnitEnumAccessorTrait;
 

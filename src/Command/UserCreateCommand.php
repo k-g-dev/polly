@@ -15,6 +15,7 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\Validator\Constraints\GroupSequence;
 use Symfony\Component\Validator\Constraints\IdenticalTo;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -49,6 +50,7 @@ class UserCreateCommand extends Command
         $io->ask('Enter email', null, $this->validatorHelper->createPropertyValueValidatorCallable(
             $userRegistrationDto,
             'email',
+            new GroupSequence(['Default', UserRegistration::GROUP_COMMAND]),
         ));
 
         $io->section('Password');

@@ -30,7 +30,7 @@ class ConfirmationEmailSender implements EmailSenderInterface
             $user,
             (new TemplatedEmail())
                 ->from(new Address($this->config->emailFrom, $this->config->emailName))
-                ->to((string) $user->getEmail())
+                ->to(new Address($user->getEmail()))
                 ->subject('Please confirm your email')
                 ->htmlTemplate('email/auth/confirmation_email.html.twig')
                 ->context($context),

@@ -2,7 +2,7 @@
 
 namespace App\Tests\Unit\Trait\Enum;
 
-use App\Tests\Fixtures\Enum\TestEnumUnit;
+use App\Tests\TestSupport\Fixtures\Enum\TestEnumUnit;
 use PHPUnit\Framework\TestCase;
 
 final class UnitEnumAccessorTraitTest extends TestCase

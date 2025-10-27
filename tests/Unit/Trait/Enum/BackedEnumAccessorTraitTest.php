@@ -2,8 +2,8 @@
 
 namespace App\Tests\Unit\Trait\Enum;
 
-use App\Tests\Fixtures\Enum\TestEnumBackedInt;
-use App\Tests\Fixtures\Enum\TestEnumBackedString;
+use App\Tests\TestSupport\Fixtures\Enum\TestEnumBackedInt;
+use App\Tests\TestSupport\Fixtures\Enum\TestEnumBackedString;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 

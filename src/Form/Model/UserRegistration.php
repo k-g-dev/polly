@@ -8,9 +8,11 @@ use App\Validator\UserEmailUnique;
 #[Assert\Cascade]
 class UserRegistration
 {
+    public const GROUP_COMMAND = 'command';
+
     #[Assert\NotBlank]
     #[Assert\Email]
-    #[UserEmailUnique]
+    #[UserEmailUnique(groups: [self::GROUP_COMMAND])]
     public string $email;
 
     public Password $password;

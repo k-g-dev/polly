@@ -8,6 +8,7 @@ use App\Controller\Auth\SecurityController;
 use App\Entity\User;
 use App\Enum\AuthorizationRole;
 use App\Factory\UserFactory;
+use App\Tests\TestSupport\Trait\RateLimiterResetTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -20,6 +21,7 @@ use Zenstruck\Foundry\Test\ResetDatabase;
 final class SecurityControllerTest extends WebTestCase
 {
     use Factories;
+    use RateLimiterResetTrait;
     use ResetDatabase;
 
     private const CREDENTIALS = [
@@ -228,15 +230,5 @@ final class SecurityControllerTest extends WebTestCase
         self::assertResponseRedirects('/');
 
         self::assertFalse($authorizationChecker->isGranted('IS_AUTHENTICATED'));
-    }
-
-    /**
-     * Reset rate limiter used for login throttling.
-     */
-    private function resetRateLimiter(): void
-    {
-        self::getContainer()
-            ->get('cache.global_clearer')
-            ->clearPool('cache.rate_limiter');
     }
 }

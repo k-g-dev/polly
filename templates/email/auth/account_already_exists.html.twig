@@ -1,0 +1,13 @@
+{% extends 'email/layout.html.twig' %}
+
+{% block body %}
+    {% set passwordResetRequestUrl = url(constant('App\\Controller\\Auth\\PasswordResetController::ROUTE_REQUEST')) %}
+
+    <p>Someone tried to register using your email address. If that was you, please note that you already have an account. You can log in using your existing credentials.</p>
+
+    <p>Forgot your password? You can reset it here:</p>
+
+    <a href="{{ passwordResetRequestUrl }}">{{ passwordResetRequestUrl }}</a>
+
+    <p>If this attempt was not made by you, you can ignore this message. No changes have been made to your account.</p>
+{% endblock %}

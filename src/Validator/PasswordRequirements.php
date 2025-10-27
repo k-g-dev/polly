@@ -10,7 +10,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[\Attribute]
 class PasswordRequirements extends Assert\Compound
 {
-    public const GROUP_EXTENDED = 'Extended';
+    public const GROUP_EXTENDED = 'extended';
 
     #[HasNamedArguments]
     public function __construct(

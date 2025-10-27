@@ -7,6 +7,7 @@ use App\Entity\User;
 use App\Factory\UserFactory;
 use App\Helper\ArrayHelper;
 use App\Repository\UserRepository;
+use App\Tests\TestSupport\Trait\RateLimiterResetTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -16,6 +17,7 @@ use Zenstruck\Foundry\Test\ResetDatabase;
 final class RegistrationControllerTest extends WebTestCase
 {
     use Factories;
+    use RateLimiterResetTrait;
     use ResetDatabase;
 
     private const VALID_REGISTRATION_FORM_DATA = [
@@ -53,6 +55,8 @@ final class RegistrationControllerTest extends WebTestCase
     {
         $this->client = static::createClient();
         $this->userRepository = static::getContainer()->get(UserRepository::class);
+
+        $this->resetRateLimiter();
     }
 
     public function testRegisterPageLoadsSuccessfully()
@@ -118,6 +122,10 @@ final class RegistrationControllerTest extends WebTestCase
             'Please verify your email address. The verification link is valid for 1 hour.',
         );
 
+        // Always display a general message about what will happen if an account with the provided email address
+        // already exists, regardless of whether it actually exists or not, so as not to disclose this fact publicly.
+        self::assertSelectorTextContains('.alert-warning', 'If an account is already registered');
+
         // Get the verification link from the email.
         $messageBody = $messages[0]->getHtmlBody();
         self::assertIsString($messageBody);
@@ -174,17 +182,14 @@ final class RegistrationControllerTest extends WebTestCase
         yield 'Not agreed to terms' => [$data04];
     }
 
-    public function testRegisterFailsIfUserWithProvidedEmailAlreadyExists(): void
+    public function testAccountExistsReminderEmailWasSentWhenRegisteringToAlreadyTakenEmailAddress(): void
     {
-        UserFactory::createOne([
-            'email' => self::VALID_REGISTRATION_FORM_DATA['email'],
-        ]);
+        $user = UserFactory::createOne();
 
         $this->client->request('GET', '/register');
-        self::assertResponseIsSuccessful();
 
         $this->client->submitForm(self::REGISTRATION_FORM_SUBMIT_BUTTON_TEXT, [
-            self::REGISTRATION_FORM_FIELDS['email'] => self::VALID_REGISTRATION_FORM_DATA['email'],
+            self::REGISTRATION_FORM_FIELDS['email'] => $user->getEmail(),
 
             self::REGISTRATION_FORM_FIELDS['password']['first']
                 => self::VALID_REGISTRATION_FORM_DATA['password']['first'],
@@ -195,7 +200,57 @@ final class RegistrationControllerTest extends WebTestCase
             self::REGISTRATION_FORM_FIELDS['agreeTerms'] => self::VALID_REGISTRATION_FORM_DATA['agreeTerms'],
         ]);
 
-        $this->assertResponseStatusCodeSame(422);
-        self::assertSelectorExists('.invalid-feedback');
+        self::assertEmailCount(1);
+
+        $messages = $this->getMailerMessages();
+        self::assertCount(1, $messages);
+
+        $templatedEmail = $messages[0];
+
+        self::assertEmailSubjectContains($templatedEmail, 'Account registration attempt notification');
+
+        self::assertResponseRedirects();
+        $this->client->followRedirect();
+
+        self::assertRouteSame(SecurityController::ROUTE_LOGIN);
+
+        self::assertSelectorTextSame(
+            '.alert-info',
+            'Please verify your email address. The verification link is valid for 1 hour.',
+        );
+        self::assertSelectorTextContains('.alert-warning', 'If an account is already registered');
+
+        self::assertSame(
+            1,
+            $this->userRepository->count(),
+            'New user should not be created if the email address provided is already taken.',
+        );
+    }
+
+    public function testAccountExistsReminderTrotthling(): void
+    {
+        /** @var User $user */
+        $user = UserFactory::createOne();
+
+        $formData = [
+            self::REGISTRATION_FORM_FIELDS['email'] => $user->getEmail(),
+
+            self::REGISTRATION_FORM_FIELDS['password']['first']
+                => self::VALID_REGISTRATION_FORM_DATA['password']['first'],
+
+            self::REGISTRATION_FORM_FIELDS['password']['second']
+                => self::VALID_REGISTRATION_FORM_DATA['password']['second'],
+
+            self::REGISTRATION_FORM_FIELDS['agreeTerms'] => self::VALID_REGISTRATION_FORM_DATA['agreeTerms'],
+        ];
+
+        for ($i = 0; $i < 2; $i++) {
+            $this->client->request('GET', '/register');
+
+            $this->client->submitForm(self::REGISTRATION_FORM_SUBMIT_BUTTON_TEXT, $formData);
+
+            // Only the first attempt made within a short period of time should result in the email being sent.
+            self::assertEmailCount((int) ($i === 0));
+        }
     }
 }

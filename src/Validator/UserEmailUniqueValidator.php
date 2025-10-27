@@ -34,6 +34,7 @@ final class UserEmailUniqueValidator extends ConstraintValidator
         }
 
         $this->context->buildViolation($constraint->message)
+            ->setCode(UserEmailUnique::USER_EMAIL_NOT_UNIQUE_ERROR)
             ->addViolation();
     }
 }
