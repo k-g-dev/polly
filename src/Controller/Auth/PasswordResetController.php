@@ -4,8 +4,8 @@ namespace App\Controller\Auth;
 
 use App\Entity\User;
 use App\Enum\FlashMessageType;
-use App\Form\PasswordResetRequestFormType;
 use App\Form\PasswordFormType;
+use App\Form\PasswordResetRequestFormType;
 use App\Manager\UserPasswordManager;
 use App\Repository\UserRepository;
 use App\Service\EmailSender\PasswordResetEmailSender;
@@ -19,14 +19,19 @@ use SymfonyCasts\Bundle\ResetPassword\Controller\ResetPasswordControllerTrait;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 
-#[Route('/reset-password', name: 'app_password_reset_')]
+#[Route('/reset-password', name: self::ROUTE_GROUP_PREFIX)]
 final class PasswordResetController extends AbstractController
 {
     use ResetPasswordControllerTrait;
 
-    public const ROUTE_CHECK_EMAIL = 'app_password_reset_check_email';
-    public const ROUTE_REQUEST = 'app_password_reset_forgot_password_request';
-    public const ROUTE_RESET = 'app_password_reset_reset_password';
+    public const ROUTE_CHECK_EMAIL = self::ROUTE_GROUP_PREFIX . self::INTERNAL_ROUTE_CHECK_EMAIL;
+    public const ROUTE_REQUEST = self::ROUTE_GROUP_PREFIX . self::INTERNAL_ROUTE_REQUEST;
+    public const ROUTE_RESET = self::ROUTE_GROUP_PREFIX . self::INTERNAL_ROUTE_RESET;
+
+    private const INTERNAL_ROUTE_CHECK_EMAIL = 'check_email';
+    private const INTERNAL_ROUTE_REQUEST = 'forgot_password_request';
+    private const INTERNAL_ROUTE_RESET = 'reset_password';
+    private const ROUTE_GROUP_PREFIX = 'app_password_reset_';
 
     public function __construct(
         private ResetPasswordHelperInterface $resetPasswordHelper,
@@ -36,7 +41,7 @@ final class PasswordResetController extends AbstractController
     /**
      * Display & process form to request a password reset.
      */
-    #[Route('', name: 'forgot_password_request', methods: [Request::METHOD_GET, Request::METHOD_POST])]
+    #[Route('', name: self::INTERNAL_ROUTE_REQUEST, methods: [Request::METHOD_GET, Request::METHOD_POST])]
     public function request(
         Request $request,
         UserRepository $userRepository,
@@ -51,7 +56,7 @@ final class PasswordResetController extends AbstractController
             return $this->processSendingPasswordResetEmail($email, $emailSender, $userRepository);
         }
 
-        return $this->render('auth/password_reset/request.html.twig', [
+        return $this->render('site/auth/password_reset/request.html.twig', [
             'requestForm' => $form,
         ]);
     }
@@ -59,7 +64,7 @@ final class PasswordResetController extends AbstractController
     /**
      * Confirmation page after a user has requested a password reset.
      */
-    #[Route('/check-email', name: 'check_email', methods: [Request::METHOD_GET])]
+    #[Route('/check-email', name: self::INTERNAL_ROUTE_CHECK_EMAIL, methods: [Request::METHOD_GET])]
     public function checkEmail(Request $request): Response
     {
         // A soft block on direct access to the site. Only display content when redirected to this page.
@@ -69,11 +74,9 @@ final class PasswordResetController extends AbstractController
 
         // Generate a fake token if the user does not exist or someone hit this page directly.
         // This prevents exposing whether or not a user was found with the given email address or not.
-        if (null === ($resetToken = $this->getTokenObjectFromSession())) {
-            $resetToken = $this->resetPasswordHelper->generateFakeResetToken();
-        }
+        $resetToken = $this->getTokenObjectFromSession() ?? $this->resetPasswordHelper->generateFakeResetToken();
 
-        return $this->render('auth/password_reset/check_email.html.twig', [
+        return $this->render('site/auth/password_reset/check_email.html.twig', [
             'resetToken' => $resetToken,
         ]);
     }
@@ -81,7 +84,7 @@ final class PasswordResetController extends AbstractController
     /**
      * Validates and process the reset URL that the user clicked in their email.
      */
-    #[Route('/reset/{token}', name: 'reset_password', methods: [Request::METHOD_GET, Request::METHOD_POST])]
+    #[Route('/reset/{token}', name: self::INTERNAL_ROUTE_RESET, methods: [Request::METHOD_GET, Request::METHOD_POST])]
     public function reset(
         Request $request,
         UserPasswordManager $passwordManager,
@@ -99,7 +102,10 @@ final class PasswordResetController extends AbstractController
         $resetToken = $this->getTokenFromSession();
 
         if (null === $resetToken) {
-            throw $this->createNotFoundException('No reset password token found in the URL or in the session.');
+            throw $this->createNotFoundException($translator->trans(
+                'auth.password_reset.reset.error.token_not_found',
+                domain: 'sites',
+            ));
         }
 
         try {
@@ -109,8 +115,8 @@ final class PasswordResetController extends AbstractController
             $this->addFlash(FlashMessageType::Danger->value, sprintf(
                 '%s - %s',
                 $translator
-                    ->trans(ResetPasswordExceptionInterface::MESSAGE_PROBLEM_VALIDATE, [], 'ResetPasswordBundle'),
-                $translator->trans($e->getReason(), [], 'ResetPasswordBundle'),
+                    ->trans(ResetPasswordExceptionInterface::MESSAGE_PROBLEM_VALIDATE, domain: 'ResetPasswordBundle'),
+                $translator->trans($e->getReason(), domain: 'ResetPasswordBundle'),
             ));
 
             return $this->redirectToRoute(self::ROUTE_REQUEST);
@@ -130,12 +136,15 @@ final class PasswordResetController extends AbstractController
             // The session is cleaned up after the password has been changed.
             $this->cleanSessionAfterReset();
 
-            $this->addFlash(FlashMessageType::Success->value, 'The new password has been successfully set.');
+            $this->addFlash(
+                FlashMessageType::Success->value,
+                $translator->trans('auth.password_reset.reset.flash_message.password_reset_success', domain: 'sites'),
+            );
 
             return $this->redirectToRoute(SecurityController::ROUTE_LOGIN);
         }
 
-        return $this->render('auth/password_reset/reset.html.twig', [
+        return $this->render('site/auth/password_reset/reset.html.twig', [
             'passwordResetForm' => $form,
         ]);
     }

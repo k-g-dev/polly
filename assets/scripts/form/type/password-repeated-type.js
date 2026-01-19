@@ -14,6 +14,7 @@ export default class PasswordRepeatedType {
     }
 
     #onCollapse = e => {
-        this.#togglerActionInfoElement.textContent = (e.type === 'hide.bs.collapse') ? 'Show' : 'Hide';
+        this.#togglerActionInfoElement.textContent
+            = this.#togglerActionInfoElement.dataset[(e.type === 'hide.bs.collapse') ? 'actionShow' : 'actionHide'];
     }
 }

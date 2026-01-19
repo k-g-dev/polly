@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    {{ 'auth.account_verification.resend_verification_email.title'|trans(domain='sites') }} | {{ parent() }}
+{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-xl-6">
+                <h1 class="h3 mb-3">
+                    {{ 'auth.account_verification.resend_verification_email.heading'|trans(domain='sites') }}
+                </h1>
+
+                <div class="alert alert-info">
+                    {{ 'auth.account_verification.resend_verification_email.confirmation_instruction'
+                        |trans(domain='sites')
+                    }}
+                </div>
+
+                <p class="mt-5">
+                    {{ 'auth.account_verification.resend_verification_email.resend_email_instruction'
+                        |trans(domain='sites')
+                    }}
+                </p>
+
+                <form method="POST">
+                    <button type="submit" class="btn btn-primary mt-2 w-100">
+                        {{ 'form.resend_verification_email.button.submit'|trans(domain='forms') }}
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,4 @@
+access_control:
+    access_denied:
+        default: 'Access denied.'
+        password_reset: 'Password reset is intended for users who cannot log in because they have forgotten their password. You are logged in, so you cannot use this option.'

@@ -1,0 +1,22 @@
+password:
+    at_least:
+        one_digit: 'Twoje hasło powinno zawierać co najmniej jedną cyfrę.'
+        one_lowercase_letter: 'Twoje hasło powinno zawierać co najmniej jedną małą literę.'
+        one_special_character: 'Twoje hasło powinno zawierać co najmniej jeden znak specjalny.'
+        one_uppercase_letter: 'Twoje hasło powinno zawierać co najmniej jedną dużą literę.'
+    new:
+        not_same_as_current: 'Nowe hasło nie powinno być takie samo jak obecne.'
+    not_blank: 'Proszę podać hasło.'
+    old:
+        not_blank: 'Proszę podać aktualne hasło.'
+        wrong: 'Podna wartość bieżącego hasła nie jest prawidłowa.'
+password_repeated:
+    not_match: 'Hasła nie pasują do siebie.'
+user:
+    email:
+        not_blank: 'Proszę podać swój adres e-mail.'
+        unique:
+            registration: 'Nie można zarejestrować się przy użyciu tego adresu e-mail.'
+            main: 'Nie można użyć tego adresu e-mail.'
+    terms:
+        agree: 'Musisz zaakceptować warunki korzystania z usług.'

@@ -1,0 +1,6 @@
+pluralized:
+    password.min_length: >-
+        Your password should be at least {limit, plural,
+            one {# character}
+            other {# characters}
+        } long.

@@ -1,0 +1,25 @@
+auth:
+    account_already_exists:
+        body:
+            forgot_password_instruction: 'Nie pamiętasz hasła? Możesz je zresetować tutaj:'
+            if_no_reregistration_attempt: 'Jeśli próba ponownej rejestracji nie została podjęta przez Ciebie, możesz zignorować tę wiadomość. Na Twoim koncie nie wprowadzono żadnych zmian.'
+            registration_attempt: 'Ktoś próbował się zarejestrować, używając Twojego adresu e-mail. Jeśli to Ty, pamiętaj, że masz już konto. Możesz się zalogować, używając swoich dotychczasowych danych.'
+        subject: 'Powiadomienie o próbie rejestracji konta'
+    confirmation_email:
+        body:
+            confirm_your_email: 'Potwierdź swój adres e-mail klikając poniższy link:'
+            email_confirmation_link_text: 'Potwierdź mój adres e-mail'
+            if_link_does_not_work: 'Jeżeli powyższy link nie działa, skopiuj i wklej poniższy link do przeglądarki:'
+            if_link_has_expired: 'Jeśli link wygasł, zaloguj się, aby uzyskać dostęp do formularza, który umożliwi ponowne wysłanie linku weryfikacyjnego.'
+        closing: 'Dziękujemy. Życzymy przyjemnego korzystania z aplikacji.'
+        subject: 'Proszę potwierdzić swój adres e-mail'
+    password_reset:
+        body:
+            if_link_does_not_work: 'Jeżeli powyższy link nie działa, skopiuj i wklej poniższy link do przeglądarki:'
+            password_reset_link_text: 'Resetowanie hasła'
+            to_reset_your_password: 'Aby zresetować hasło, kliknij poniższy link:'
+        subject: 'Twoja prośba o zresetowanie hasła'
+layout:
+    closing: 'Dzękujemy.'
+    footer: 'Ta wiadomość została wysłana automatycznie. Prosimy na nią nie odpowiadać.'
+    greeting: 'Dzień dobry,'

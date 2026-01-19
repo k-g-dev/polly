@@ -1,0 +1,34 @@
+date_time:
+    day: >-
+        {day, plural,
+            one {# dzień}
+            other {# dni}
+        }
+    hour: >-
+        {hour, plural,
+            one {# godzina}
+            few {# godziny}
+            many {# godzin}
+            other {# godziny}
+        }
+    minute: >-
+        {minute, plural,
+            one {# minuta}
+            few {# minuty}
+            many {# minut}
+            other {# minuty}
+        }
+    second: >-
+        {second, plural,
+            one {# sekunda}
+            few {# sekundy}
+            many {# sekund}
+            other {# sekundy}
+        }
+character: >-
+    {count, plural,
+        one {# znak}
+        few {# znaki}
+        many {# znaków}
+        other {# znaków}
+    }

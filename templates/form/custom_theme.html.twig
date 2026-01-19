@@ -1,0 +1,29 @@
+{% block checkbox_radio_label %}
+    {% use 'bootstrap_5_layout.html.twig' %}
+
+    {{ parent() }}
+
+    {% if required and widget is defined %}
+        {{ _self.requiredText(true) }}
+    {% endif %}
+{% endblock %}
+
+{% block form_label %}
+    {% use 'bootstrap_5_layout.html.twig' %}
+
+    {{ parent() }}
+
+    {% if required and ((compound is not defined) or (not compound)) %}
+        {{ _self.requiredText() }}
+    {% endif %}
+{% endblock %}
+
+{% macro requiredText(isForCheckboxRadio = false) %}
+    {% set classes = 'required-text' %}
+
+    {% if isForCheckboxRadio %}
+        {% set classes = '%1$s %1$s--form-check'|format(classes) %}
+    {% endif %}
+
+    <span class="{{ classes }}">({{ 'message.required'|trans(domain='forms') }})</span>
+{% endmacro %}

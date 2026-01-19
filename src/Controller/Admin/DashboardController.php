@@ -11,9 +11,9 @@ final class DashboardController extends AbstractController
 {
     public const ROUTE_INDEX = 'app_admin_dashboard';
 
-    #[Route('/admin', name: 'app_admin_dashboard', methods: [Request::METHOD_GET])]
+    #[Route('/admin', name: self::ROUTE_INDEX, methods: [Request::METHOD_GET])]
     public function index(): Response
     {
-        return $this->render('admin/dashboard/index.html.twig');
+        return $this->render('site/admin/dashboard/index.html.twig');
     }
 }

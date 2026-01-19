@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'account.index.title'|trans(domain='sites') }} | {{ parent() }}{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+        <a
+            href="{{ path(constant('App\\Controller\\AccountController::ROUTE_PASSWORD_CHANGE')) }}"
+            class="link-primary"
+        >
+            {{ 'menu.account.other.password_change'|trans }}
+        </a>
+    </div>
+{% endblock %}

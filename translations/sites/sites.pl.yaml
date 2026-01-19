@@ -1,0 +1,63 @@
+account:
+    index:
+        title: 'Konto'
+    password_change:
+        flash_message:
+            password_change_success: 'Hasło zostało zmienione.'
+        heading: 'Zmiana hasła'
+        title: 'Zmiana hasła'
+    terms_of_service_acceptance:
+        heading: 'Akceptacja regulaminu'
+        no_access_to_account: 'Dopóki nie zaakceptujesz regulaminu, korzystanie z konta nie będzie możliwe.'
+        title: 'Akceptacja regulaminu'
+admin:
+    dashboard:
+        index:
+            title: 'Panel administracyjny'
+auth:
+    account_verification:
+        verify_email:
+            flash_message:
+                verification_success: 'Twój adres e-mail został zweryfikowany.'
+        resend_verification_email:
+            confirmation_instruction: 'Potwierdź swój adres e-mail, klikając link weryfikacyjny w wiadomości e-mail otrzymanej podczas rejestracji.'
+            error:
+                user_not_found: 'Nie znaleziono użytkownika.'
+            flash_message:
+                email_already_verified: 'Twój adres e-mail został już zweryfikowany.'
+                email_sending_limit_reached: 'Wiadomość e-mail nie została wysłana. Osiągnąłeś limit wysyłania wiadomości e-mail. Czas pozostały do odblokowania możliwości ponownego wysłania wiadomości to %lock_duration%.'
+            heading: 'Zweryfikuj swój adres e-mail'
+            resend_email_instruction: 'Jeśli nie otrzymałeś wiadomości e-mail lub link weryfikacyjny stracił ważność, skorzystaj z opcji ponownego wysłania:'
+            title: 'Zweryfikuj adres e-mail'
+    password_reset:
+        check_email:
+            heading: 'Wysłano wiadomość e-mail dotyczącą resetowania hasła'
+            if_account_exists: 'Jeśli istnieje konto pasujące do Twojego adresu e-mail, właśnie została wysłana wiadomość e-mail zawierająca link, za pomocą którego możesz zresetować hasło.'
+            if_you_do_not_receive_email: 'Jeśli nie otrzymasz wiadomości e-mail, sprawdź folder ze spamem lub %password_reset_request_link%.'
+            password_reset_request_link_text: 'spróbuj ponownie'
+            title: 'E-mail dotyczący resetowania hasła'
+        request:
+            heading: 'Zresetuj swoje hasło'
+            title: 'Zresetuj hasło'
+        reset:
+            error:
+                token_not_found: 'Nie znaleziono tokena resetowania hasła w adresie URL ani w sesji.'
+            flash_message:
+                password_reset_success: 'Ustawienie nowego hasła zakończone powodzeniem.'
+            heading: 'Zresetuj swoje hasło'
+            title: 'Zresetuj hasło'
+    registration:
+        register:
+            heading: 'Rejestracja'
+            title: 'Rejestracja'
+    security:
+        login:
+            heading: 'Logowanie'
+            logged_in_as: 'Jesteś zalogowany jako'
+            title: 'Logowanie'
+main:
+    homepage:
+        title: 'Strona główna'
+    terms_of_service:
+        heading: 'Regulamin'
+        title: 'Regulamin'

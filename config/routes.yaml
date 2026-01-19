@@ -3,3 +3,9 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
+    trailing_slash_on_root: false
+    # Prefix values ​​must be the same as keys.
+    # (This makes the application code simpler because it allow to get prefixes from app.enabled_locales parameter.)
+    prefix:
+        en: ''
+        pl: '/pl'

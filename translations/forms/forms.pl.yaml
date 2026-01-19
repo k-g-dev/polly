@@ -1,0 +1,63 @@
+button:
+    submit: 'Wyślij'
+form:
+    login:
+        button:
+            submit: 'Zaloguj'
+        field:
+            email: 'E-mail'
+            password: 'Hasło'
+        forgot_password: 'Nie pamiętasz hasła?'
+    password:
+        button:
+            submit: 'Zresetuj hasło'
+    password_change:
+        field:
+            old_plain_password:
+                label: 'Aktualne hasło'
+            plain_password:
+                first:
+                    label: 'Nowe hasło'
+                second:
+                    label: 'Powtórz nowe hasło'
+    password_reset_request:
+        button:
+            submit: 'Wyślij wiadomość e-mail dotyczącą resetowania hasła'
+        field:
+            email:
+                help: 'Podaj adres e-mail, którego używasz do logowania się do aplikacji, aby otrzymać link do resetowania hasła.'
+                label: 'E-mail'
+    registration:
+        field:
+            email:
+                label: 'E-mail'
+        button:
+            submit: 'Utwórz konto'
+    resend_verification_email:
+        button:
+            submit: 'Wyślij ponownie e-mail'
+handler:
+    registration_form:
+        flash_message:
+            account_existence_case_description: 'Jeżeli na podany adres e-mail jest już zarejestrowane konto, otrzymasz przypomnienie o jego istnieniu.'
+message:
+    password_full_requirements: 'pełne wymagania dotyczące hasła'
+    required: 'wymagane'
+type:
+    agree_to_terms:
+        account:
+            action:
+                create: 'Aby utworzyć konto'
+                use: 'Aby korzystać z konta'
+            terms:
+                agreement: '%action%, musisz zaakceptować %terms_link%.'
+                link_text: 'Regulamin'
+        field:
+            agree_to_terms:
+                label: 'Akceptuję regulamin'
+    password_repeated:
+        field:
+            first:
+                label: 'Hasło'
+            second:
+                label: 'Powtórz hasło'

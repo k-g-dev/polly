@@ -12,6 +12,7 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Translation\TranslatableMessage;
 
 class PasswordRepeatedType extends AbstractType
 {
@@ -41,7 +42,7 @@ class PasswordRepeatedType extends AbstractType
         $resolver->setDefaults([
             'type' => PasswordType::class,
             'options' => ['attr' => ['autocomplete' => 'new-password']],
-            'invalid_message' => 'The passwords do not match.',
+            'invalid_message' => new TranslatableMessage('password_repeated.not_match', domain: 'validators'),
             'password_min_length' => $this->passwordMinLength,
             'sequentially_validation' => false,
             'constraints' => fn(Options $options): array => [
@@ -50,13 +51,13 @@ class PasswordRepeatedType extends AbstractType
         ])
         ->setOptions('first_options', function (OptionsResolver $resolver): void {
             $resolver->setDefaults([
-                'label' => 'Password',
+                'label' => new TranslatableMessage('type.password_repeated.field.first.label', domain: 'forms'),
                 'help' => null,
             ]);
         })
         ->setOptions('second_options', function (OptionsResolver $resolver): void {
             $resolver->setDefaults([
-                'label' => 'Repeat password',
+                'label' => new TranslatableMessage('type.password_repeated.field.second.label', domain: 'forms'),
                 'help' => null,
             ]);
         });

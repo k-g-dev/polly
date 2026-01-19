@@ -39,9 +39,9 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        - { path: ^/admin, roles: !php/enum App\Enum\AuthorizationRole::Admin->value }
-        - { path: ^/account, roles: !php/enum App\Enum\AuthorizationRole::User->value }
-        - { path: ^/reset-password, allow_if: '!is_authenticated()' }
+        - { request_matcher: App\Security\RequestMatcher\LocaleAwarePathMatcher\Admin, roles: !php/enum App\Enum\AuthorizationRole::Admin->value }
+        - { request_matcher: App\Security\RequestMatcher\LocaleAwarePathMatcher\Account, roles: !php/enum App\Enum\AuthorizationRole::User->value }
+        - { request_matcher: App\Security\RequestMatcher\LocaleAwarePathMatcher\ResetPassword, allow_if: '!is_authenticated()' }
 
 when@test:
     security:

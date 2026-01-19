@@ -1,0 +1,63 @@
+account:
+    index:
+        title: 'Account'
+    password_change:
+        flash_message:
+            password_change_success: 'The password has been changed.'
+        heading: 'Change password'
+        title: 'Change password'
+    terms_of_service_acceptance:
+        heading: 'Terms of Service acceptance'
+        no_access_to_account: 'Until you accept the terms of service, you will not be able to access your account.'
+        title: 'Terms of Service acceptance'
+admin:
+    dashboard:
+        index:
+            title: 'Admin dashboard'
+auth:
+    account_verification:
+        verify_email:
+            flash_message:
+                verification_success: 'Your email address has been verified.'
+        resend_verification_email:
+            confirmation_instruction: 'Please confirm your email address by clicking on the verification link in the email you received during registration.'
+            error:
+                user_not_found: 'User not found.'
+            flash_message:
+                email_already_verified: 'Your email address was already verified.'
+                email_sending_limit_reached: 'The email was not sent. You have reached the email sending limit. The ability to resend the email will be unlocked in %lock_duration%.'
+            heading: 'Verify your email'
+            resend_email_instruction: 'If you did not receive the email or if the verification link has expired, please use the resend option:'
+            title: 'Verify email'
+    password_reset:
+        check_email:
+            heading: 'Password reset email sent'
+            if_account_exists: 'If an account matching your email exists, then an email was just sent that contains a link that you can use to reset your password.'
+            if_you_do_not_receive_email: 'If you do not receive an email please check your spam folder or %password_reset_request_link%.'
+            password_reset_request_link_text: 'try again'
+            title: 'Password reset email'
+        request:
+            heading: 'Reset your password'
+            title: 'Reset your password'
+        reset:
+            error:
+                token_not_found: 'No reset password token found in the URL or in the session.'
+            flash_message:
+                password_reset_success: 'The new password has been successfully set.'
+            heading: 'Reset your password'
+            title: 'Reset your password'
+    registration:
+        register:
+            heading: 'Sign up'
+            title: 'Sign up'
+    security:
+        login:
+            heading: 'Sign in'
+            logged_in_as: 'You are logged in as'
+            title: 'Sign in'
+main:
+    homepage:
+        title: 'Homepage'
+    terms_of_service:
+        heading: 'Terms of Service'
+        title: 'Terms of Service'

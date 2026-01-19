@@ -1,4 +1,6 @@
 {% block password_repeated_row %}
+    {% set actionShowTranslated = 'action.visibility.show'|trans %}
+
     <div class="js-password-repeated-wrapper">
         <div class="mb-3">
             {{ form_label(form.first) }}
@@ -13,7 +15,14 @@
                 aria-expanded="false"
                 aria-controls="passwordRequirements"
             >
-                <span class="js-toggler-action-info">Show</span> full password requirements
+                <span
+                    class="js-toggler-action-info"
+                    data-action-hide="{{ 'action.visibility.hide'|trans }}"
+                    data-action-show="{{ actionShowTranslated }}"
+                >
+                    {{ actionShowTranslated }}
+                </span>
+                {{ 'message.password_full_requirements'|trans(domain='forms') }}
             </button>
 
             <div class="collapse mt-2" id="passwordRequirements">

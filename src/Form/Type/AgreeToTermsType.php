@@ -11,13 +11,15 @@ use Symfony\Component\Routing\Exception\InvalidParameterException;
 use Symfony\Component\Routing\Exception\MissingMandatoryParametersException;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Validator\Constraints\IsTrue;
+use Symfony\Component\Translation\TranslatableMessage;
+use Symfony\Component\Validator\Constraints as Assert;
 
 class AgreeToTermsType extends AbstractType
 {
     public function __construct(
         private UrlGeneratorInterface $urlGenerator,
         private Security $security,
+        private \Symfony\Contracts\Translation\TranslatorInterface $translator,
     ) {
     }
 
@@ -35,8 +37,9 @@ class AgreeToTermsType extends AbstractType
     {
         $resolver->setDefaults([
             'constraints' => [
-                new IsTrue(message: 'You should agree to our terms.'),
+                new Assert\IsTrue(message: 'user.terms.agree'),
             ],
+            'label' => new TranslatableMessage('type.agree_to_terms.field.agree_to_terms.label', domain: 'forms'),
             'help' => $this->getDefaultHelpValue(),
             'help_html' => true,
         ]);
@@ -47,27 +50,21 @@ class AgreeToTermsType extends AbstractType
      * @throws MissingMandatoryParametersException
      * @throws InvalidParameterException
      */
-    private function getDefaultHelpValue(): string
+    private function getDefaultHelpValue(): TranslatableMessage
     {
-        return sprintf(
-            '%s, you must agree to the %s',
-            $this->security->isGranted('IS_AUTHENTICATED')
-                ? 'To use your user account'
-                : 'To create an account',
-            $this->getLinkToTermsOfService(),
-        );
-    }
+        $action = $this->security->isGranted('IS_AUTHENTICATED')
+            ? new TranslatableMessage('type.agree_to_terms.account.action.use', domain: 'forms')
+            : new TranslatableMessage('type.agree_to_terms.account.action.create', domain: 'forms');
 
-    /**
-     * @throws RouteNotFoundException
-     * @throws MissingMandatoryParametersException
-     * @throws InvalidParameterException
-     */
-    private function getLinkToTermsOfService(): string
-    {
-        return sprintf(
-            '<a href="%s" target="_blank">Terms of Service</a>',
+        $termsLink = sprintf(
+            '<a href="%s" target="_blank">%s</a>',
             $this->urlGenerator->generate(MainController::ROUTE_TERMS_OF_SERVICE),
+            $this->translator->trans('type.agree_to_terms.account.terms.link_text', domain: 'forms'),
         );
+
+        return new TranslatableMessage('type.agree_to_terms.account.terms.agreement', [
+            '%action%' => $action,
+            '%terms_link%' => $termsLink,
+        ], 'forms');
     }
 }

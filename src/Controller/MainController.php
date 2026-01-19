@@ -12,15 +12,15 @@ final class MainController extends AbstractController
     public const ROUTE_HOMEPAGE = 'app_homepage';
     public const ROUTE_TERMS_OF_SERVICE = 'app_terms_of_service';
 
-    #[Route('/', name: 'app_homepage', methods: [Request::METHOD_GET])]
+    #[Route('/', name: self::ROUTE_HOMEPAGE, methods: [Request::METHOD_GET])]
     public function homepage(): Response
     {
-        return $this->render('main/homepage.html.twig');
+        return $this->render('site/main/homepage.html.twig');
     }
 
-    #[Route('/terms-of-service', name: 'app_terms_of_service', methods: [Request::METHOD_GET])]
+    #[Route('/terms-of-service', name: self::ROUTE_TERMS_OF_SERVICE, methods: [Request::METHOD_GET])]
     public function termsOfService(): Response
     {
-        return $this->render('main/terms_of_service.html.twig');
+        return $this->render('site/main/terms_of_service.html.twig');
     }
 }

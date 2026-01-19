@@ -11,6 +11,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
@@ -32,6 +33,8 @@ final class LoginFormAuthenticatorTest extends WebTestCase
         string $initialRoute,
         AuthorizationRole $authorizationRole,
     ): void {
+        $translator = static::getContainer()->get(TranslatorInterface::class);
+
         $user = UserFactory::createOne([
             'isVerified' => true,
             'roles' => $authorizationRole,
@@ -47,7 +50,7 @@ final class LoginFormAuthenticatorTest extends WebTestCase
             self::assertRouteSame(SecurityController::ROUTE_LOGIN);
         }
 
-        $this->client->submitForm('Sign in', [
+        $this->client->submitForm($translator->trans('form.login.button.submit', domain: 'forms'), [
             '_username' => $user->getUserIdentifier(),
             '_password' => UserFactory::USER_DEFAULT_PASSWORD,
         ]);

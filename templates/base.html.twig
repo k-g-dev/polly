@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html class="h-100">
+<html lang="{{ app.locale }}" class="h-100">
     <head>
         <meta charset="UTF-8">
         <title>{% block title %}Polly{% endblock %}</title>
-        <link rel="icon" href="{{ asset('/favicon.ico') }}" sizes="48x48" >
+        <link rel="icon" href="{{ asset('/favicon.ico') }}" sizes="48x48">
         <link rel="icon" href="{{ "data:image/svg+xml,#{ include('svg/polly_icon.svg.twig') }" }}" sizes="any">
 
         {% block stylesheets %}

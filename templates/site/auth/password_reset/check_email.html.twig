@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'auth.password_reset.check_email.title'|trans(domain='sites') }} | {{ parent() }}{% endblock %}
+
+{% block body %}
+    {% set expirationTime
+            = resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle')
+    %}
+    {% set passwordResetRequestLink = '<a href="%s">%s</a>'|format(
+            path(constant('App\\Controller\\Auth\\PasswordResetController::ROUTE_REQUEST')),
+            'auth.password_reset.check_email.password_reset_request_link_text'|trans(domain='sites'),
+        )
+    %}
+
+    <div class="container py-5">
+        <h1 class="h3 mb-3">{{ 'auth.password_reset.check_email.heading'|trans(domain='sites') }}</h1>
+
+        <div class="alert alert-info">
+            {{ 'auth.password_reset.check_email.if_account_exists'|trans(domain='sites') }}
+            {{ 'link.expiration_info'|trans({'%expiration_time%': expirationTime}, 'messages') }}
+        </div>
+
+        <p>
+            {{ 'auth.password_reset.check_email.if_you_do_not_receive_email'
+                |trans({'%password_reset_request_link%': passwordResetRequestLink}, 'sites')
+                |raw
+            }}
+        </p>
+    </div>
+{% endblock %}

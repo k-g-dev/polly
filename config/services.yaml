@@ -6,13 +6,14 @@
 parameters:
     app.email.from: '%env(string:EMAIL_FROM)%'
     app.email.name: 'Polly Mail Bot'
+    app.enabled_locales: ['en', 'pl']
     app.login_throttling.max_attempts: 3
     app.password.min_length: 12
     app.password.special_chars: !php/const App\Const\Authentication::PASSWORD_SPECIAL_CHARACTERS
     app.symfonycasts_verify_email.lifetime: 7200
     app.security.access_control.restricted_routes:
         '^app_password_reset_.*$':
-            message: 'Password reset is intended for users who cannot log in because they have forgotten their password. You are logged in, so you cannot use this option.'
+            message: 'access_control.access_denied.password_reset'
             redirect_to_route: !php/const App\Controller\AccountController::ROUTE_INDEX
 
 when@test:
@@ -33,16 +34,31 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
-    App\Service\PasswordRequirementsInfo\PasswordRequirementsInfoHtml:
-        factory: ['@App\Service\PasswordRequirementsInfo\PasswordRequirementsInfoFactory', 'createHtml']
-
-    App\Service\PasswordRequirementsInfo\PasswordRequirementsInfoCli:
-        factory: ['@App\Service\PasswordRequirementsInfo\PasswordRequirementsInfoFactory', 'createCli']
+    App\Command\UserCreateCommand:
+        bind:
+            App\Service\PasswordRequirementsInfo\PasswordRequirementsInfoInterface: '@App\Service\PasswordRequirementsInfo\PasswordRequirementsInfoCli'
 
     App\Form\Type\PasswordRepeatedType:
         bind:
             App\Service\PasswordRequirementsInfo\PasswordRequirementsInfoInterface: '@App\Service\PasswordRequirementsInfo\PasswordRequirementsInfoHtml'
 
-    App\Command\UserCreateCommand:
-        bind:
-            App\Service\PasswordRequirementsInfo\PasswordRequirementsInfoInterface: '@App\Service\PasswordRequirementsInfo\PasswordRequirementsInfoCli'
+    App\Security\RequestMatcher\LocaleAwarePathMatcher\Account:
+        class: App\Security\RequestMatcher\LocaleAwarePathMatcher
+        arguments:
+            $path: 'account'
+
+    App\Security\RequestMatcher\LocaleAwarePathMatcher\Admin:
+        class: App\Security\RequestMatcher\LocaleAwarePathMatcher
+        arguments:
+            $path: 'admin'
+
+    App\Security\RequestMatcher\LocaleAwarePathMatcher\ResetPassword:
+        class: App\Security\RequestMatcher\LocaleAwarePathMatcher
+        arguments:
+            $path: 'reset-password'
+
+    App\Service\PasswordRequirementsInfo\PasswordRequirementsInfoCli:
+        factory: ['@App\Service\PasswordRequirementsInfo\PasswordRequirementsInfoFactory', 'createCli']
+
+    App\Service\PasswordRequirementsInfo\PasswordRequirementsInfoHtml:
+        factory: ['@App\Service\PasswordRequirementsInfo\PasswordRequirementsInfoFactory', 'createHtml']

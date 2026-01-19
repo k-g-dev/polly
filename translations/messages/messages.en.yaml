@@ -1,0 +1,22 @@
+action:
+    auth:
+        login: 'Sign in'
+        logout: 'Sign out'
+        register: 'Sign up'
+    visibility:
+        hide: 'Hide'
+        show: 'Show'
+link:
+    expiration_info: 'This link will expire in %expiration_time%.'
+menu:
+    account:
+        base:
+            admin_area: 'Admin area'
+            account: 'Account'
+            my_account: 'My account'
+        other:
+            password_change: 'Change password'
+    header:
+        homepage: 'Home'
+    footer:
+        terms_of_service: 'Terms of Service'

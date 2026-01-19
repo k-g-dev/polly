@@ -12,11 +12,11 @@ class UserRegistration
 
     #[Assert\NotBlank]
     #[Assert\Email]
-    #[UserEmailUnique(groups: [self::GROUP_COMMAND])]
+    #[UserEmailUnique(message: 'user.email.unique.registration', groups: [self::GROUP_COMMAND])]
     public string $email;
 
     public Password $password;
 
-    #[Assert\IsTrue(message: 'You should agree to our terms.')]
+    #[Assert\IsTrue(message: 'user.terms.agree')]
     public bool $agreeTerms = false;
 }

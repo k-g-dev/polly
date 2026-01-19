@@ -28,8 +28,6 @@ final class DurationHelperTest extends KernelTestCase
     #[DataProvider('getAsArrayNonZeroSecondsProvider')]
     public function testGetAsArray(array $expected, int $seconds, EmptyValuesSkipMode $mode): void
     {
-        self::bootKernel();
-
         $result = $this->getDurationHelper(true)->getAsArray($seconds, $mode);
 
         self::assertSame($expected, $result);
@@ -109,8 +107,6 @@ final class DurationHelperTest extends KernelTestCase
     #[DataProvider('getAsStringNonZeroSecondsProvider')]
     public function testGetAsString(string $expected, int $seconds, EmptyValuesSkipMode $mode): void
     {
-        self::bootKernel();
-
         $result = $this->getDurationHelper()->getAsString($seconds, $mode);
 
         self::assertSame($expected, $result);

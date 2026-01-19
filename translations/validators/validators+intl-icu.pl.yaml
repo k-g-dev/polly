@@ -1,0 +1,8 @@
+pluralized:
+    password.min_length: >-
+        Twoje hasło powinno mieć co najmniej {limit, plural,
+            one {# znak}
+            few {# znaki}
+            many {# znaków}
+            other {# znaków}
+        }.

@@ -5,16 +5,18 @@ namespace App\Service\PasswordRequirementsInfo;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class PasswordRequirementsInfoCli extends AbstractPasswordRequirementsInfo
 {
     public function __construct(
         int $minLength,
         string $specialChars,
+        TranslatorInterface $translator,
         private ArrayInput $input,
         private BufferedOutput $output,
     ) {
-        parent::__construct($minLength, $specialChars);
+        parent::__construct($minLength, $specialChars, $translator);
     }
 
     public function getInfoFull(): string

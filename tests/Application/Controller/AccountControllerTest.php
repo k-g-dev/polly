@@ -11,6 +11,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
@@ -30,11 +31,10 @@ final class AccountControllerTest extends WebTestCase
         ],
     ];
 
-    private const PASSWORD_CHANGE_FORM_SUBMIT_BUTTON_TEXT = 'Submit';
-
     private static ArrayHelper $arrayHelper;
 
     private KernelBrowser $client;
+    private TranslatorInterface $translator;
 
     public static function setUpBeforeClass(): void
     {
@@ -44,6 +44,7 @@ final class AccountControllerTest extends WebTestCase
     protected function setUp(): void
     {
         $this->client = static::createClient();
+        $this->translator = static::getContainer()->get(TranslatorInterface::class);
     }
 
     public function testUserHasAccessToAccountSection(): void
@@ -81,7 +82,7 @@ final class AccountControllerTest extends WebTestCase
 
         self::assertRouteSame(AccountController::ROUTE_TERMS_OF_SERVICE_ACCEPTANCE);
 
-        $this->client->submitForm('Submit', [
+        $this->client->submitForm($this->translator->trans('button.submit', domain: 'forms'), [
             'agree_to_terms_form[agreeTerms]' => true,
         ]);
 
@@ -102,10 +103,15 @@ final class AccountControllerTest extends WebTestCase
 
         $crawler = $this->client->request('GET', '/account/password/change');
         self::assertResponseIsSuccessful();
-        self::assertPageTitleContains('Change password');
-        self::assertSelectorTextSame('h1', 'Change password');
+        self::assertPageTitleContains($this->translator->trans('account.password_change.title', domain: 'sites'));
+        self::assertSelectorTextSame(
+            'h1',
+            $this->translator->trans('account.password_change.heading', domain: 'sites'),
+        );
 
-        $form = $crawler->selectButton(self::PASSWORD_CHANGE_FORM_SUBMIT_BUTTON_TEXT)->form();
+        $form = $crawler
+            ->selectButton($this->translator->trans('button.submit', domain: 'forms'))
+            ->form();
 
         foreach (self::$arrayHelper->flatten(self::PASSWORD_CHANGE_FORM_FIELDS) as $fieldName) {
             self::assertTrue($form->has($fieldName), "The \"{$fieldName}\" field not exist in change password form.");
@@ -113,7 +119,10 @@ final class AccountControllerTest extends WebTestCase
 
         $passwordRequirementsBtn = $crawler->filter('form button[data-bs-target="#passwordRequirements"]');
         self::assertCount(1, $passwordRequirementsBtn, 'There is no button displaying the full password requirements.');
-        self::assertStringContainsStringIgnoringCase('password requirements', $passwordRequirementsBtn->text());
+        self::assertStringContainsStringIgnoringCase(
+            $this->translator->trans('message.password_full_requirements', domain: 'forms'),
+            $passwordRequirementsBtn->text(),
+        );
     }
 
     public function testPasswordChange(): void
@@ -129,7 +138,7 @@ final class AccountControllerTest extends WebTestCase
         $oldHashedPassword = $user->getPassword();
         $newPassword = UserFactory::USER_DEFAULT_PASSWORD . 'x';
 
-        $this->client->submitForm(self::PASSWORD_CHANGE_FORM_SUBMIT_BUTTON_TEXT, [
+        $this->client->submitForm($this->translator->trans('button.submit', domain: 'forms'), [
             self::PASSWORD_CHANGE_FORM_FIELDS['oldPlainPassword'] => UserFactory::USER_DEFAULT_PASSWORD,
             self::PASSWORD_CHANGE_FORM_FIELDS['plainPassword']['first'] => $newPassword,
             self::PASSWORD_CHANGE_FORM_FIELDS['plainPassword']['second'] => $newPassword,
@@ -140,7 +149,10 @@ final class AccountControllerTest extends WebTestCase
         self::assertResponseRedirects('/account');
         $this->client->followRedirect();
 
-        self::assertSelectorExists('.alert-success');
+        self::assertSelectorTextSame(
+            '.alert-success',
+            $this->translator->trans('account.password_change.flash_message.password_change_success', domain: 'sites'),
+        );
     }
 
     #[DataProvider('invalidPasswordChangeFormDataProvider')]
@@ -153,7 +165,7 @@ final class AccountControllerTest extends WebTestCase
 
         $oldHashedPassword = $user->getPassword();
 
-        $this->client->submitForm(self::PASSWORD_CHANGE_FORM_SUBMIT_BUTTON_TEXT, [
+        $this->client->submitForm($this->translator->trans('button.submit', domain: 'forms'), [
             self::PASSWORD_CHANGE_FORM_FIELDS['oldPlainPassword'] => $formData['oldPlainPassword'],
             self::PASSWORD_CHANGE_FORM_FIELDS['plainPassword']['first'] => $formData['plainPassword']['first'],
             self::PASSWORD_CHANGE_FORM_FIELDS['plainPassword']['second'] => $formData['plainPassword']['second'],

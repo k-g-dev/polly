@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'auth.password_reset.request.title'|trans(domain='sites') }} | {{ parent() }}{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+        <div class="row justify-content-center">
+             <div class="col-md-8 col-xl-6">
+                <h1 class="h3 mb-3">{{ 'auth.password_reset.request.heading'|trans(domain='sites') }}</h1>
+
+                {{ form_start(requestForm) }}
+                    {{ form_row(requestForm.email) }}
+                    <button type="submit" class="btn btn-primary mt-2 w-100">
+                        {{ 'form.password_reset_request.button.submit'|trans(domain='forms') }}
+                    </button>
+                {{ form_end(requestForm) }}
+             </div>
+        </div>
+    </div>
+{% endblock %}

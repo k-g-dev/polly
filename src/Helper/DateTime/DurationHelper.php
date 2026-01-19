@@ -16,8 +16,8 @@ class DurationHelper
     ];
 
     public function __construct(
-        private TranslatorInterface $translator,
         private ArrayHelper $arrayHelper,
+        private TranslatorInterface $translator,
     ) {
     }
 
@@ -35,6 +35,7 @@ class DurationHelper
      * Converts a time in seconds to a string representing time unit values with their full names.
      *
      * @param EmptyValuesSkipMode $mode Mode for skipping units whose value is equal to zero
+     * @throws \UnhandledMatchError
      */
     public function getAsString(int $seconds, EmptyValuesSkipMode $mode = EmptyValuesSkipMode::None): string
     {
@@ -62,16 +63,38 @@ class DurationHelper
         return $duration;
     }
 
+    /**
+     * @param array $duration Time unit values, where the keys are the full unit names
+     * @throws \UnhandledMatchError
+     */
     private function unitsOfDurationToString(array $duration): string
     {
         $asString = array_reduce(
             array_keys($duration),
-            fn(string $carry, string $key): string
-                => $carry .= $this->translator->trans("date_time.{$key}", [$key => $duration[$key]], 'units') . ' ',
+            fn(string $carry, string $unit): string
+                => $carry .= $this->getTranslatedUnitDuration($duration, $unit) . ' ',
             '',
         );
 
         return trim($asString);
+    }
+
+    /**
+     * Performs translation using full keys to ensure full detection in translation tools such as debug:translation.
+     *
+     * @param array $duration Time unit values, where the keys are the full unit names
+     * @param string $unit The unit of time for which the translation will be returned
+     * @return string The translated unit of time along with its numerical value
+     * @throws \UnhandledMatchError
+     */
+    private function getTranslatedUnitDuration(array $duration, string $unit): string
+    {
+        return match ($unit) {
+            'day' => $this->translator->trans('date_time.day', [$unit => $duration[$unit]], 'units'),
+            'hour' => $this->translator->trans('date_time.hour', [$unit => $duration[$unit]], 'units'),
+            'minute' => $this->translator->trans('date_time.minute', [$unit => $duration[$unit]], 'units'),
+            'second' => $this->translator->trans('date_time.second', [$unit => $duration[$unit]], 'units'),
+        };
     }
 
     /**

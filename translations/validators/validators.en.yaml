@@ -1,0 +1,22 @@
+password:
+    at_least:
+        one_digit: 'Your password should contain at least one digit.'
+        one_lowercase_letter: 'Your password should contain at least one lowercase letter.'
+        one_special_character: 'Your password should contain at least one special character.'
+        one_uppercase_letter: 'Your password should contain at least one uppercase letter.'
+    new:
+        not_same_as_current: 'The new password should not be the same as the current one.'
+    not_blank: 'Please enter a password.'
+    old:
+        not_blank: 'Please enter your current password.'
+        wrong: 'Wrong value for your current password.'
+password_repeated:
+    not_match: 'The passwords do not match.'
+user:
+    email:
+        not_blank: 'Please enter your email.'
+        unique:
+            registration: 'Unable to register with this email address.'
+            main: 'This email address cannot be used.'
+    terms:
+        agree: 'You must accept the terms of service.'

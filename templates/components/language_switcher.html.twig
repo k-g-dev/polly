@@ -1,0 +1,19 @@
+<div class="language-switcher dropdown">
+    <button class="language-switcher__toggler" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <span class="language-switcher__language">{{ app.locale }}</span>
+    </button>
+    <ul class="language-switcher__language-menu-dropdown dropdown-menu dropdown-menu-end">
+        {% for locale in app.enabled_locales %}
+            {% if locale is not same as(app.locale) %}
+                <li class="">
+                    <a
+                        class="language-switcher__language-menu-dropdown-item"
+                        href="{{ path(app.current_route, app.current_route_parameters|merge({_locale: locale})) }}"
+                    >
+                        {{ locale }}
+                    </a>
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+</div>

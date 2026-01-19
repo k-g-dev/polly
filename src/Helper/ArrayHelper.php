@@ -28,9 +28,7 @@ class ArrayHelper
      */
     public function trim(array $array, TrimMode $mode, callable $filter = null): array
     {
-        $filter ??= function (mixed $value): bool {
-            return empty($value);
-        };
+        $filter ??= fn(mixed $value): bool => empty($value);
 
         switch ($mode) {
             case TrimMode::FromStart:

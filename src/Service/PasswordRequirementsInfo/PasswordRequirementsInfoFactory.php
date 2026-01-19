@@ -2,9 +2,15 @@
 
 namespace App\Service\PasswordRequirementsInfo;
 
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\ContainerInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Twig\Environment;
 
 class PasswordRequirementsInfoFactory
 {
@@ -16,6 +22,9 @@ class PasswordRequirementsInfoFactory
         private int $minLength,
         #[Autowire(param: 'app.password.special_chars')]
         private string $specialChars,
+        #[AutowireLocator([Environment::class])]
+        private ContainerInterface $serviceLocator,
+        private TranslatorInterface $translator,
     ) {
     }
 
@@ -28,9 +37,18 @@ class PasswordRequirementsInfoFactory
         };
     }
 
+    /**
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerExceptionInterface
+     */
     public function createHtml(): PasswordRequirementsInfoHtml
     {
-        return new PasswordRequirementsInfoHtml($this->minLength, $this->specialChars);
+        return new PasswordRequirementsInfoHtml(
+            $this->minLength,
+            $this->specialChars,
+            $this->translator,
+            $this->serviceLocator->get(Environment::class),
+        );
     }
 
     public function createCli(): PasswordRequirementsInfoCli
@@ -38,6 +56,7 @@ class PasswordRequirementsInfoFactory
         return new PasswordRequirementsInfoCli(
             $this->minLength,
             $this->specialChars,
+            $this->translator,
             new ArrayInput([]),
             new BufferedOutput(),
         );

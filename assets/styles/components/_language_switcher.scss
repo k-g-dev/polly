@@ -1,0 +1,38 @@
+.language-switcher {
+    &__toggler {
+        @extend .btn;
+        @extend .btn-primary;
+        @extend .btn-sm;
+        @extend .dropdown-toggle;
+    }
+
+    &__language {
+        font-weight: bold;
+        text-transform: uppercase;
+
+        &-menu-dropdown {
+            min-width: 100%;
+            font-size: 0.875rem;
+            text-align: center;
+            text-transform: uppercase;
+
+            &-item {
+                @extend .dropdown-item;
+
+                &:hover {
+                    color: $logo-color-second;
+                }
+
+                &:active {
+                    background-color: $dropdown-link-hover-bg;
+                }
+            }
+        }
+    }
+
+    @include media-breakpoint-up(md) {
+        &__language-menu-dropdown {
+            font-size: 1rem;
+        }
+    }
+}

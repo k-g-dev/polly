@@ -11,6 +11,7 @@ use App\Tests\TestSupport\Trait\RateLimiterResetTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
@@ -39,11 +40,10 @@ final class RegistrationControllerTest extends WebTestCase
         ],
     ];
 
-    private const REGISTRATION_FORM_SUBMIT_BUTTON_TEXT = 'Create an account';
-
     private static ArrayHelper $arrayHelper;
 
     private KernelBrowser $client;
+    private TranslatorInterface $translator;
     private UserRepository $userRepository;
 
     public static function setUpBeforeClass(): void
@@ -54,6 +54,7 @@ final class RegistrationControllerTest extends WebTestCase
     protected function setUp(): void
     {
         $this->client = static::createClient();
+        $this->translator = static::getContainer()->get(TranslatorInterface::class);
         $this->userRepository = static::getContainer()->get(UserRepository::class);
 
         $this->resetRateLimiter();
@@ -63,10 +64,15 @@ final class RegistrationControllerTest extends WebTestCase
     {
         $crawler = $this->client->request('GET', '/register');
         self::assertResponseIsSuccessful();
-        self::assertPageTitleContains('Sign up');
-        self::assertSelectorTextSame('h1', 'Sign up');
+        self::assertPageTitleContains($this->translator->trans('auth.registration.register.title', domain: 'sites'));
+        self::assertSelectorTextSame('h1', $this->translator->trans(
+            'auth.registration.register.heading',
+            domain: 'sites',
+        ));
 
-        $form = $crawler->selectButton(self::REGISTRATION_FORM_SUBMIT_BUTTON_TEXT)->form();
+        $form = $crawler
+            ->selectButton($this->translator->trans('form.registration.button.submit', domain: 'forms'))
+            ->form();
 
         foreach (self::$arrayHelper->flatten(self::REGISTRATION_FORM_FIELDS) as $fieldName) {
             self::assertTrue($form->has($fieldName), "The \"{$fieldName}\" field not exist in the registration form.");
@@ -74,7 +80,10 @@ final class RegistrationControllerTest extends WebTestCase
 
         $passwordRequirementsBtn = $crawler->filter('form button[data-bs-target="#passwordRequirements"]');
         self::assertCount(1, $passwordRequirementsBtn, 'There is no button displaying the full password requirements.');
-        self::assertStringContainsStringIgnoringCase('password requirements', $passwordRequirementsBtn->text());
+        self::assertStringContainsStringIgnoringCase(
+            $this->translator->trans('message.password_full_requirements', domain: 'forms'),
+            $passwordRequirementsBtn->text(),
+        );
     }
 
     public function testRegister(): void
@@ -82,7 +91,7 @@ final class RegistrationControllerTest extends WebTestCase
         // Register a new user.
         $this->client->request('GET', '/register');
 
-        $this->client->submitForm(self::REGISTRATION_FORM_SUBMIT_BUTTON_TEXT, [
+        $this->client->submitForm($this->translator->trans('form.registration.button.submit', domain: 'forms'), [
             self::REGISTRATION_FORM_FIELDS['email'] => self::VALID_REGISTRATION_FORM_DATA['email'],
 
             self::REGISTRATION_FORM_FIELDS['password']['first']
@@ -117,14 +126,14 @@ final class RegistrationControllerTest extends WebTestCase
         $this->client->followRedirect();
 
         self::assertRouteSame(SecurityController::ROUTE_LOGIN);
-        self::assertSelectorTextSame(
-            '.alert-info',
-            'Please verify your email address. The verification link is valid for 1 hour.',
-        );
+        self::assertSelectorTextSame('.alert-info', $this->getConfirmationEmailInstruction());
 
         // Always display a general message about what will happen if an account with the provided email address
         // already exists, regardless of whether it actually exists or not, so as not to disclose this fact publicly.
-        self::assertSelectorTextContains('.alert-warning', 'If an account is already registered');
+        self::assertSelectorTextSame('.alert-warning', $this->translator->trans(
+            'handler.registration_form.flash_message.account_existence_case_description',
+            domain: 'forms',
+        ));
 
         // Get the verification link from the email.
         $messageBody = $messages[0]->getHtmlBody();
@@ -133,7 +142,7 @@ final class RegistrationControllerTest extends WebTestCase
         preg_match('#"(.+/verification/account/email.+)">#', $messageBody, $verificationLink);
 
         // "Click" the link and see if the user is verified.
-        $this->client->request('GET', $verificationLink[1]);
+        $this->client->request('GET', html_entity_decode($verificationLink[1]));
         $this->client->followRedirect();
 
         $this->userRepository->getEntityManager()->refresh($user);
@@ -147,7 +156,7 @@ final class RegistrationControllerTest extends WebTestCase
         $this->client->request('GET', '/register');
         self::assertResponseIsSuccessful();
 
-        $this->client->submitForm(self::REGISTRATION_FORM_SUBMIT_BUTTON_TEXT, [
+        $this->client->submitForm($this->translator->trans('form.registration.button.submit', domain: 'forms'), [
             self::REGISTRATION_FORM_FIELDS['email'] => $formData['email'],
             self::REGISTRATION_FORM_FIELDS['password']['first'] => $formData['password']['first'],
             self::REGISTRATION_FORM_FIELDS['password']['second'] => $formData['password']['second'],
@@ -188,7 +197,7 @@ final class RegistrationControllerTest extends WebTestCase
 
         $this->client->request('GET', '/register');
 
-        $this->client->submitForm(self::REGISTRATION_FORM_SUBMIT_BUTTON_TEXT, [
+        $this->client->submitForm($this->translator->trans('form.registration.button.submit', domain: 'forms'), [
             self::REGISTRATION_FORM_FIELDS['email'] => $user->getEmail(),
 
             self::REGISTRATION_FORM_FIELDS['password']['first']
@@ -207,18 +216,21 @@ final class RegistrationControllerTest extends WebTestCase
 
         $templatedEmail = $messages[0];
 
-        self::assertEmailSubjectContains($templatedEmail, 'Account registration attempt notification');
+        self::assertEmailSubjectContains($templatedEmail, $this->translator->trans(
+            'auth.account_already_exists.subject',
+            domain: 'emails',
+        ));
 
         self::assertResponseRedirects();
         $this->client->followRedirect();
 
         self::assertRouteSame(SecurityController::ROUTE_LOGIN);
 
-        self::assertSelectorTextSame(
-            '.alert-info',
-            'Please verify your email address. The verification link is valid for 1 hour.',
-        );
-        self::assertSelectorTextContains('.alert-warning', 'If an account is already registered');
+        self::assertSelectorTextSame('.alert-info', $this->getConfirmationEmailInstruction());
+        self::assertSelectorTextSame('.alert-warning', $this->translator->trans(
+            'handler.registration_form.flash_message.account_existence_case_description',
+            domain: 'forms',
+        ));
 
         self::assertSame(
             1,
@@ -247,10 +259,24 @@ final class RegistrationControllerTest extends WebTestCase
         for ($i = 0; $i < 2; $i++) {
             $this->client->request('GET', '/register');
 
-            $this->client->submitForm(self::REGISTRATION_FORM_SUBMIT_BUTTON_TEXT, $formData);
+            $this->client->submitForm(
+                $this->translator->trans('form.registration.button.submit', domain: 'forms'),
+                $formData,
+            );
 
             // Only the first attempt made within a short period of time should result in the email being sent.
             self::assertEmailCount((int) ($i === 0));
         }
+    }
+
+    private function getConfirmationEmailInstruction(): string
+    {
+        return sprintf(
+            '%s %s',
+            $this->translator->trans('email_sender.confirmation_email_sender.verify_email', domain: 'services'),
+            $this->translator->trans('email_sender.confirmation_email_sender.verification_lifetime', [
+                '%verification_lifetime%' => $this->translator->trans('date_time.hour', ['hour' => 1], 'units'),
+            ], 'services'),
+        );
     }
 }

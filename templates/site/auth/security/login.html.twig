@@ -1,0 +1,76 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'auth.security.login.title'|trans(domain='sites') }} | {{ parent() }}{% endblock %}
+
+{% block body %}
+    {% set pathPasswordResetRequest = path(constant('App\\Controller\\Auth\\PasswordResetController::ROUTE_REQUEST')) %}
+    {% set pathSecurityLogout = path(constant('App\\Controller\\Auth\\SecurityController::ROUTE_LOGOUT')) %}
+
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-xl-6">
+            {% if app.user %}
+                <div class="alert alert-warning text-center mb-3">
+                    {{ 'auth.security.login.logged_in_as'|trans(domain='sites') }}:
+                    <strong class="d-block">{{ app.user.userIdentifier }}</strong>
+                </div>
+                <a class="btn btn-primary d-block" href="{{ pathSecurityLogout }}">{{ 'action.auth.logout'|trans }}</a>
+            {% else %}
+                <form method="post">
+                    {% if error %}
+                        <div class="alert alert-danger">
+                            {{ error.messageKey|trans(error.messageData, 'security') }}
+                        </div>
+                    {% endif %}
+
+                    <h1 class="h3 mb-3">{{ 'auth.security.login.heading'|trans(domain='sites') }}</h1>
+
+                    <div class="mb-3">
+                        <label for="username" class="form-label">
+                            {{ 'form.login.field.email'|trans(domain='forms') }}
+                        </label>
+                        <input
+                            type="email"
+                            value="{{ last_username }}"
+                            name="_username"
+                            id="username"
+                            class="form-control"
+                            autocomplete="email"
+                            required
+                            autofocus
+                        >
+                    </div>
+                    <div class="mb-1">
+                        <label for="password" class="form-label">
+                            {{ 'form.login.field.password'|trans(domain='forms') }}
+                        </label>
+                        <input
+                            type="password"
+                            name="_password"
+                            id="password"
+                            class="form-control"
+                            autocomplete="current-password"
+                            required
+                        >
+                    </div>
+                    <div class="mb-3">
+                        <a href="{{ pathPasswordResetRequest }}">
+                            {{ 'form.login.forgot_password'|trans(domain='forms') }}
+                        </a>
+                    </div>
+                    <input
+                        type="hidden"
+                        name="_csrf_token"
+                        data-controller="csrf-protection"
+                        value="{{ csrf_token('authenticate') }}"
+                    >
+
+                    <button class="btn btn-primary mt-2 w-100" type="submit">
+                        {{ 'form.login.button.submit'|trans(domain='forms') }}
+                    </button>
+                </form>
+            {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

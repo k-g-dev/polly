@@ -13,5 +13,11 @@ final class UserEmailUnique extends Constraint
         self::USER_EMAIL_NOT_UNIQUE_ERROR => self::USER_EMAIL_NOT_UNIQUE_ERROR,
     ];
 
-    public string $message = 'Unable to register with this email address.';
+    public function __construct(
+        public string $message = 'user.email.unique.main',
+        ?array $groups = null,
+        mixed $payload = null,
+    ) {
+        parent::__construct(null, $groups, $payload);
+    }
 }

@@ -8,13 +8,16 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Translation\TranslatableMessage;
 
 class RegistrationFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('email')
+            ->add('email', options: [
+                'label' => new TranslatableMessage('form.registration.field.email.label', domain: 'forms'),
+            ])
             ->add('agreeTerms', AgreeToTermsType::class, [
                 'constraints' => [],
             ])

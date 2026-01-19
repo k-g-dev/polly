@@ -1,0 +1,25 @@
+auth:
+    account_already_exists:
+        body:
+            forgot_password_instruction: 'Forgot your password? You can reset it here:'
+            if_no_reregistration_attempt: 'If this attempt was not made by you, you can ignore this message. No changes have been made to your account.'
+            registration_attempt: 'Someone tried to register using your email address. If that was you, please note that you already have an account. You can log in using your existing credentials.'
+        subject: 'Account registration attempt notification'
+    confirmation_email:
+        body:
+            confirm_your_email: 'Please confirm your email address by clicking the following link:'
+            email_confirmation_link_text: 'Confirm My Email'
+            if_link_does_not_work: 'If the link above doesn''t work, copy and paste this link into your browser:'
+            if_link_has_expired: 'If the link has expired, please go through the sign in process to access the form that allow to resend the confirmation link.'
+        closing: 'Thank you. Enjoy using the app.'
+        subject: 'Please confirm your email'
+    password_reset:
+        body:
+            if_link_does_not_work: 'If the link above doesn''t work, copy and paste this link into your browser:'
+            password_reset_link_text: 'Password Reset'
+            to_reset_your_password: 'To reset your password, please click the following link:'
+        subject: 'Your password reset request'
+layout:
+    closing: 'Thank you.'
+    footer: 'This message was sent automatically. Please do not reply to it.'
+    greeting: 'Hello,'

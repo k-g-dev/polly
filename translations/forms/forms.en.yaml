@@ -1,0 +1,63 @@
+button:
+    submit: 'Submit'
+form:
+    login:
+        button:
+            submit: 'Sign in'
+        field:
+            email: 'Email'
+            password: 'Password'
+        forgot_password: 'Forgot password?'
+    password:
+        button:
+            submit: 'Reset password'
+    password_change:
+        field:
+            old_plain_password:
+                label: 'Current password'
+            plain_password:
+                first:
+                    label: 'New password'
+                second:
+                    label: 'Repeat new password'
+    password_reset_request:
+        button:
+            submit: 'Send password reset email'
+        field:
+            email:
+                help: 'Enter the email address you use to log in to the app to receive a password reset link.'
+                label: 'Email'
+    registration:
+        field:
+            email:
+                label: 'Email'
+        button:
+            submit: 'Create an account'
+    resend_verification_email:
+        button:
+            submit: 'Resend email'
+handler:
+    registration_form:
+        flash_message:
+            account_existence_case_description: 'If an account is already registered to the email address provided, you will receive a reminder of its existence.'
+message:
+    password_full_requirements: 'full password requirements'
+    required: 'required'
+type:
+    agree_to_terms:
+        account:
+            action:
+                create: 'To create an account'
+                use: 'To use your user account'
+            terms:
+                agreement: '%action%, you must agree to the %terms_link%'
+                link_text: 'Terms of Service'
+        field:
+            agree_to_terms:
+                label: 'Agree terms'
+    password_repeated:
+        field:
+            first:
+                label: 'Password'
+            second:
+                label: 'Repeat password'

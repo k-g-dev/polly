@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Http\Authorization\AccessDeniedHandlerInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AccessDeniedHandler implements AccessDeniedHandlerInterface
 {
@@ -19,7 +20,8 @@ class AccessDeniedHandler implements AccessDeniedHandlerInterface
         private RequestStack $requestStack,
         private UrlGeneratorInterface $urlGenerator,
         #[Autowire(param: 'app.security.access_control.restricted_routes')]
-        private array $restrictedRoutes,
+        private ?array $restrictedRoutes,
+        private TranslatorInterface $translator,
     ) {
     }
 
@@ -27,8 +29,15 @@ class AccessDeniedHandler implements AccessDeniedHandlerInterface
     {
         $routeConfig = $this->findRestrictedRouteConfig($request);
 
-        $this->requestStack->getSession()->getFlashBag()
-            ->add(FlashMessageType::Danger->value, $routeConfig['message'] ?? 'Access denied.');
+        // This is written this way so that at least the default translation key can be detected by translation tools
+        // like debug:translation.
+        $message = isset($routeConfig['message'])
+            ? $this->translator->trans($routeConfig['message'], domain: 'security')
+            : $this->translator->trans('access_control.access_denied.default', domain: 'security');
+
+        $this->requestStack->getSession()
+            ->getFlashBag()
+            ->add(FlashMessageType::Danger->value, $message);
 
         return new RedirectResponse(
             $this->urlGenerator->generate($routeConfig['redirect_to_route'] ?? MainController::ROUTE_HOMEPAGE),
@@ -39,7 +48,7 @@ class AccessDeniedHandler implements AccessDeniedHandlerInterface
     {
         $route = $request->attributes->get('_route');
 
-        if (!$route) {
+        if (!$route || empty($this->restrictedRoutes)) {
             return null;
         }
 

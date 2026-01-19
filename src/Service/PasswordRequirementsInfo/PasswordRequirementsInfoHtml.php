@@ -2,30 +2,24 @@
 
 namespace App\Service\PasswordRequirementsInfo;
 
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Twig\Environment;
+
 class PasswordRequirementsInfoHtml extends AbstractPasswordRequirementsInfo
 {
-    public function getInfoFull(): string
-    {
-        $infoParts = $this->prepareFullInfoParts();
-
-        return <<<TEXT
-            {$infoParts['requirementsList']['header']}
-            <ul>
-                {$this->getListItems($infoParts['requirementsList']['items'])}
-            </ul>
-            <p class="mb-0">
-                {$infoParts['specialCharacters']['header']}<br>
-                "<span class="text-success font-ibm-plex-mono">{$infoParts['specialCharacters']['set']}</span>"
-            </p>
-        TEXT;
+    public function __construct(
+        int $minLength,
+        string $specialChars,
+        TranslatorInterface $translator,
+        private Environment $twig,
+    ) {
+        parent::__construct($minLength, $specialChars, $translator);
     }
 
-    private function getListItems(array $items): string
+    public function getInfoFull(): string
     {
-        return array_reduce(
-            $items,
-            fn(string $carry, string $item): string => $carry .= "<li>{$item}</li>",
-            '',
-        );
+        return $this->twig->render('service/password_requirements_info/info_full.html.twig', [
+            'infoParts' => $this->prepareFullInfoParts(),
+        ]);
     }
 }

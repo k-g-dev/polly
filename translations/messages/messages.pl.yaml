@@ -1,0 +1,22 @@
+action:
+    auth:
+        login: 'Zaloguj'
+        logout: 'Wyloguj'
+        register: 'Zarejestruj'
+    visibility:
+        hide: 'Ukryj'
+        show: 'Pokaż'
+link:
+    expiration_info: 'Ten link wygaśnie za %expiration_time%.'
+menu:
+    account:
+        base:
+            admin_area: 'Panel administracyjny'
+            account: 'Konto'
+            my_account: 'Moje konto'
+        other:
+            password_change: 'Zmień hasło'
+    header:
+        homepage: 'Strona główna'
+    footer:
+        terms_of_service: 'Regulamin'

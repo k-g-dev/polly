@@ -28,29 +28,28 @@ class PasswordRequirements extends Assert\Compound
         $specialCharacters = preg_quote(Authentication::PASSWORD_SPECIAL_CHARACTERS, '/');
 
         $constraints = [
-            new Assert\NotBlank(message: 'Please enter a password.'),
+            new Assert\NotBlank(message: 'password.not_blank'),
             new Assert\Type('string'),
             new Assert\Length(
                 min: $this->passwordMinLength,
-                minMessage: 'Your password should be at least {{ limit }} characters long.',
-                // Max length allowed by Symfony for security reasons.
+                minMessage: 'pluralized.password.min_length',
                 max: 4096,
             ),
             new Assert\Regex(
                 pattern: '/\d+/',
-                message: 'Your password should contain at least one digit.',
+                message: 'password.at_least.one_digit',
             ),
             new Assert\Regex(
                 pattern: '/[a-z]+/',
-                message: 'Your password should contain at least one lowercase letter.',
+                message: 'password.at_least.one_lowercase_letter',
             ),
             new Assert\Regex(
                 pattern: '/[A-Z]+/',
-                message: 'Your password should contain at least one uppercase letter.',
+                message: 'password.at_least.one_uppercase_letter',
             ),
             new Assert\Regex(
                 pattern: '/[' . $specialCharacters . ']+/',
-                message: 'Your password should contain at least one special character.',
+                message: 'password.at_least.one_special_character',
             ),
             new Assert\PasswordStrength(groups: [self::GROUP_EXTENDED]),
         ];

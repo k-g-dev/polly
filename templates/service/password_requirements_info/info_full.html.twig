@@ -1,0 +1,11 @@
+{{ infoParts.requirementsList.header }}
+<ul>
+    {% for item in infoParts.requirementsList.items %}
+        <li>{{ item }}</li>
+    {% endfor %}
+</ul>
+
+<p class="mb-0">
+    {{ infoParts.specialCharacters.header }}<br>
+    "<span class="text-success font-ibm-plex-mono">{{ infoParts.specialCharacters.set }}</span>"
+</p>

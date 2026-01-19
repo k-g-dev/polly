@@ -1,20 +1,24 @@
 {% extends 'email/layout.html.twig' %}
 
+{% trans_default_domain 'emails' %}
+
 {% block body %}
+    {% set expirationTime = expiresAtMessageKey|trans(expiresAtMessageData, 'VerifyEmailBundle') %}
+
     <p>
-        Please confirm your email address by clicking the following link:<br>
-        <a href="{{ signedUrl|raw }}">Confirm My Email</a>.
-        This link will expire in {{ expiresAtMessageKey|trans(expiresAtMessageData, 'VerifyEmailBundle') }}.
+        {{ 'auth.confirmation_email.body.confirm_your_email'|trans }}<br>
+        <a href="{{ signedUrl }}">{{ 'auth.confirmation_email.body.email_confirmation_link_text'|trans }}</a>.
+        {{ 'link.expiration_info'|trans({'%expiration_time%': expirationTime}, 'messages') }}
     </p>
 
-    <p>If the link has expired, please go through the sign in process to access the form that allow to resend the confirmation link.</p>
+    <p>{{ 'auth.confirmation_email.body.if_link_has_expired'|trans }}</p>
 
     <p>
-        If the link above doesn't work, copy and paste this link into your browser:<br>
+        {{ 'auth.confirmation_email.body.if_link_does_not_work'|trans }}<br>
         {{ signedUrl|raw }}
     </p>
 {% endblock %}
 
 {% block closing %}
-    <p>Thank you. Enjoy using the app.</p>
+    <p>{{ 'auth.confirmation_email.closing'|trans }}</p>
 {% endblock %}

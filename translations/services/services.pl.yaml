@@ -1,0 +1,16 @@
+email_sender:
+    confirmation_email_sender:
+        verify_email: 'Zweryfikuj swój adres e-mail.'
+        verification_lifetime: 'Link weryfikacyjny jest ważny przez %verification_lifetime%.'
+        no_duration: '0 sekund'
+password_requirements_info:
+    full:
+        header: 'Twoje hasło musi mieć co najmniej %min_number_of_chars% i zawierać przynajmniej po jednym znaku będącym:'
+        requirements:
+            digit: 'cyfrą,'
+            lowercase_letter: 'małą literą,'
+            special_character: 'znakiem specialnym z określonego zestawu.'
+            uppercase_letter: 'dużą literą,'
+        special_characters:
+            header: 'Zestaw znaków specjalnych (wymieniony jako ciąg znaków w cudzysłowie):'
+    short: 'Twoje hasło musi mieć co najmniej %min_number_of_chars%.'

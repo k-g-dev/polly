@@ -10,6 +10,7 @@ use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Translation\TranslatableMessage;
 
 class PasswordChangeFormType extends AbstractType
 {
@@ -23,12 +24,25 @@ class PasswordChangeFormType extends AbstractType
     {
         $builder
             ->add('oldPlainPassword', PasswordType::class, [
-                'label' => 'Current password',
+                'label' => new TranslatableMessage(
+                    'form.password_change.field.old_plain_password.label',
+                    domain: 'forms',
+                ),
             ])
             ->add('plainPassword', PasswordRepeatedType::class, [
                 'label' => false,
-                'first_options' => ['label' => 'New password'],
-                'second_options' => ['label' => 'Repeat new password'],
+                'first_options' => [
+                    'label' => new TranslatableMessage(
+                        'form.password_change.field.plain_password.first.label',
+                        domain: 'forms',
+                    ),
+                ],
+                'second_options' => [
+                    'label' => new TranslatableMessage(
+                        'form.password_change.field.plain_password.second.label',
+                        domain: 'forms',
+                    ),
+                 ],
                 'password_min_length' => $options['password_min_length'],
                 'sequentially_validation' => $options['sequentially_validation'],
                 'constraints' => [],

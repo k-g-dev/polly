@@ -1,0 +1,4 @@
+access_control:
+    access_denied:
+        default: 'Odmowa dostępu.'
+        password_reset: 'Resetowanie hasła jest przeznaczone dla użytkowników, którzy nie mogą się zalogować, ponieważ zapomnieli hasła. Jesteś zalogowany, więc nie możesz skorzystać z tej opcji.'

@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'auth.registration.register.title'|trans(domain='sites') }} | {{ parent() }}{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-xl-6">
+                <h1 class="h3 mb-3">{{ 'auth.registration.register.heading'|trans(domain='sites') }}</h1>
+
+                {{ form_errors(registrationForm) }}
+
+                {{ form_start(registrationForm) }}
+                    {{ form_row(registrationForm.email) }}
+                    {{ form_row(registrationForm.password) }}
+                    {{ form_row(registrationForm.agreeTerms) }}
+                    <button type="submit" class="btn btn-primary mt-2 w-100">
+                        {{ 'form.registration.button.submit'|trans(domain='forms') }}
+                    </button>
+                {{ form_end(registrationForm) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    {{ encore_entry_script_tags('password-repeated-form-type') }}
+{% endblock %}

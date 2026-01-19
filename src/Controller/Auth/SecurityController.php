@@ -13,16 +13,16 @@ final class SecurityController extends AbstractController
     public const ROUTE_LOGIN = 'app_login';
     public const ROUTE_LOGOUT = 'app_logout';
 
-    #[Route(path: '/login', name: 'app_login', methods: [Request::METHOD_GET, Request::METHOD_POST])]
+    #[Route(path: '/login', name: self::ROUTE_LOGIN, methods: [Request::METHOD_GET, Request::METHOD_POST])]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
-        return $this->render('auth/security/login.html.twig', [
+        return $this->render('site/auth/security/login.html.twig', [
             'last_username' => $authenticationUtils->getLastUsername(),
             'error' => $authenticationUtils->getLastAuthenticationError(),
         ]);
     }
 
-    #[Route(path: '/logout', name: 'app_logout', methods: [Request::METHOD_GET])]
+    #[Route(path: '/logout', name: self::ROUTE_LOGOUT, methods: [Request::METHOD_GET])]
     public function logout(): void
     {
         throw new \LogicException(

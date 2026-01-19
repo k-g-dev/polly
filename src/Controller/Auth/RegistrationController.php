@@ -13,16 +13,14 @@ final class RegistrationController extends AbstractController
 {
     public const ROUTE_REGISTER = 'app_register';
 
-    #[Route('/register', name: 'app_register', methods: [Request::METHOD_GET, Request::METHOD_POST])]
-    public function register(
-        RegistrationFormHandler $formHandler,
-        Request $request,
-    ): Response {
+    #[Route('/register', name: self::ROUTE_REGISTER, methods: [Request::METHOD_GET, Request::METHOD_POST])]
+    public function register(RegistrationFormHandler $formHandler, Request $request): Response
+    {
         $form = $this->createForm(RegistrationFormType::class);
 
         $response = $formHandler->handle($form, $request);
 
-        return $response ?? $this->render('auth/registration/register.html.twig', [
+        return $response ?? $this->render('site/auth/registration/register.html.twig', [
             'registrationForm' => $form,
         ]);
     }

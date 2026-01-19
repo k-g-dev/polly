@@ -3,7 +3,6 @@
 namespace App\Controller\Auth;
 
 use App\Const\Authentication;
-use App\Controller\MainController;
 use App\Entity\User;
 use App\Enum\Array\EmptyValuesSkipMode;
 use App\Enum\FlashMessageType;
@@ -20,12 +19,18 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 
+#[Route('/verification/account', name: self::ROUTE_GROUP_PREFIX)]
 final class AccountVerificationController extends AbstractController
 {
-    public const ROUTE_RESEND_VERIFICATION_EMAIL = 'app_account_resend_verification_email';
-    public const ROUTE_VERIFY_EMAIL = 'app_account_verify_email';
+    public const ROUTE_RESEND_VERIFICATION_EMAIL
+        = self::ROUTE_GROUP_PREFIX . self::INTERNAL_ROUTE_RESEND_VERIFICATION_EMAIL;
+    public const ROUTE_VERIFY_EMAIL = self::ROUTE_GROUP_PREFIX . self::INTERNAL_ROUTE_VERIFY_EMAIL;
 
-    #[Route('/verification/account/email', name: 'app_account_verify_email', methods: [Request::METHOD_GET])]
+    private const INTERNAL_ROUTE_RESEND_VERIFICATION_EMAIL = 'resend_verification_email';
+    private const INTERNAL_ROUTE_VERIFY_EMAIL = 'verify_email';
+    private const ROUTE_GROUP_PREFIX = 'app_account_verification_';
+
+    #[Route('/email', name: self::INTERNAL_ROUTE_VERIFY_EMAIL, methods: [Request::METHOD_GET])]
     public function verifyEmail(
         Request $request,
         UserRepository $userRepository,
@@ -37,16 +42,22 @@ final class AccountVerificationController extends AbstractController
         $user = ($id !== null) ? $userRepository->find($id) : null;
 
         if (null === $user) {
-            return $this->redirectToRoute(MainController::ROUTE_HOMEPAGE);
+            return $this->redirectToRoute(SecurityController::ROUTE_LOGIN);
         }
 
         try {
             $emailVerifier->handleEmailConfirmation($request, $user);
-            $this->addFlash(FlashMessageType::Success->value, 'Your email address has been verified.');
+            $this->addFlash(
+                FlashMessageType::Success->value,
+                $translator->trans(
+                    'auth.account_verification.verify_email.flash_message.verification_success',
+                    domain: 'sites',
+                ),
+            );
         } catch (VerifyEmailExceptionInterface $exception) {
             $this->addFlash(
                 FlashMessageType::Danger->value,
-                $translator->trans($exception->getReason(), [], 'VerifyEmailBundle'),
+                $translator->trans($exception->getReason(), domain: 'VerifyEmailBundle'),
             );
         }
 
@@ -54,8 +65,8 @@ final class AccountVerificationController extends AbstractController
     }
 
     #[Route(
-        '/verification/account/email/resend',
-        name: 'app_account_resend_verification_email',
+        '/email/resend',
+        name: self::INTERNAL_ROUTE_RESEND_VERIFICATION_EMAIL,
         methods: [Request::METHOD_GET, Request::METHOD_POST],
     )]
     public function resendVerificationEmail(
@@ -65,6 +76,7 @@ final class AccountVerificationController extends AbstractController
         #[Target('account_verification_email_resend.limiter')]
         RateLimiterFactoryInterface $rateLimiter,
         DurationHelper $durationHelper,
+        TranslatorInterface $translator,
     ): Response {
         $email = $request->getSession()->get(Authentication::NON_VERIFIED_EMAIL);
 
@@ -77,11 +89,21 @@ final class AccountVerificationController extends AbstractController
             $user = $userRepostory->findOneBy(['email' => $email]);
 
             if (!$user) {
-                throw $this->createNotFoundException('User not found.');
+                throw $this->createNotFoundException($translator->trans(
+                    'auth.account_verification.resend_verification_email.error.user_not_found',
+                    domain: 'sites',
+                ));
             }
 
             if ($user->isVerified()) {
-                $this->addFlash(FlashMessageType::Info->value, 'Your email address was already verified.');
+                $this->addFlash(
+                    FlashMessageType::Info->value,
+                    $translator->trans(
+                        'auth.account_verification.resend_verification_email.flash_message.email_already_verified',
+                        domain: 'sites',
+                    ),
+                );
+
                 return $this->redirectToRoute(SecurityController::ROUTE_LOGIN);
             }
 
@@ -93,17 +115,20 @@ final class AccountVerificationController extends AbstractController
             } else {
                 $lockDuration = $rateLimit->getRetryAfter()->getTimestamp() - time();
                 $lockDurationString = $durationHelper->getAsString($lockDuration, EmptyValuesSkipMode::FromStart);
-                $message = sprintf(
-                    'The email was not sent. You have reached the email sending limit. '
-                    . 'The ability to resend the email will be unlocked in %s.',
-                    $lockDurationString,
+
+                $this->addFlash(
+                    FlashMessageType::Warning->value,
+                    $translator->trans(
+                        'auth.account_verification.resend_verification_email.flash_message.email_sending_limit_reached',
+                        ['%lock_duration%' => $lockDurationString],
+                        'sites',
+                    ),
                 );
-                $this->addFlash(FlashMessageType::Warning->value, $message);
             }
 
             return $this->redirectToRoute(SecurityController::ROUTE_LOGIN);
         }
 
-        return $this->render('auth/account_verification/resend_verification_email.html.twig');
+        return $this->render('site/auth/account_verification/resend_verification_email.html.twig');
     }
 }

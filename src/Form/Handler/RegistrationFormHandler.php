@@ -18,6 +18,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\RateLimiter\RateLimiterFactoryInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class RegistrationFormHandler
 {
@@ -30,6 +31,7 @@ class RegistrationFormHandler
         private RateLimiterFactoryInterface $rateLimiter,
         private RequestStack $requestStack,
         private UrlGeneratorInterface $urlGenerator,
+        private TranslatorInterface $translator,
     ) {
     }
 
@@ -60,8 +62,10 @@ class RegistrationFormHandler
         $flashBag->add(FlashMessageType::Info->value, $this->confirmationEmailSender->getInstruction());
         $flashBag->add(
             FlashMessageType::Warning->value,
-            'If an account is already registered to the email address provided, you will receive a reminder of its '
-            . 'existence.',
+            $this->translator->trans(
+                'handler.registration_form.flash_message.account_existence_case_description',
+                domain: 'forms',
+            ),
         );
 
         return new RedirectResponse(

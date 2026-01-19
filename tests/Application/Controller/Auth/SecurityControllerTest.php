@@ -15,6 +15,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Http\SecurityRequestAttributes;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
@@ -42,6 +43,7 @@ final class SecurityControllerTest extends WebTestCase
     ];
 
     private KernelBrowser $client;
+    private TranslatorInterface $translator;
 
     private static function prepareUserAttributesBasedOnRole(
         AuthorizationRole $userRole = AuthorizationRole::User,
@@ -62,6 +64,8 @@ final class SecurityControllerTest extends WebTestCase
         parent::setUp();
 
         $this->client = static::createClient();
+        $this->translator = static::getContainer()->get(TranslatorInterface::class);
+
         $this->resetRateLimiter();
     }
 
@@ -69,10 +73,12 @@ final class SecurityControllerTest extends WebTestCase
     {
         $crawler = $this->client->request('GET', '/login');
         self::assertResponseIsSuccessful();
-        self::assertPageTitleContains('Sign in');
-        self::assertSelectorTextSame('h1', 'Sign in');
+        self::assertPageTitleContains($this->translator->trans('auth.security.login.title', domain: 'sites'));
+        self::assertSelectorTextSame('h1', $this->translator->trans('auth.security.login.heading', domain: 'sites'));
 
-        $form = $crawler->selectButton('Sign in')->form();
+        $form = $crawler
+            ->selectButton($this->translator->trans('form.login.button.submit', domain: 'forms'))
+            ->form();
 
         foreach (self::LOGIN_FORM_FIELD_NAMES as $fieldName) {
             self::assertTrue($form->has($fieldName), "The \"{$fieldName}\" field not exist in login form.");
@@ -86,7 +92,7 @@ final class SecurityControllerTest extends WebTestCase
 
         $this->client->request('GET', '/login');
 
-        $this->client->submitForm('Sign in', [
+        $this->client->submitForm($this->translator->trans('form.login.button.submit', domain: 'forms'), [
             '_username' => $badCredentials['email'] ?? $userAttributes['email'],
             '_password' => $badCredentials['password'] ?? $userAttributes['password'],
         ]);
@@ -95,7 +101,10 @@ final class SecurityControllerTest extends WebTestCase
         $this->client->followRedirect();
 
         // Ensure we do not reveal if the user exists or not.
-        self::assertSelectorTextContains('.alert-danger', 'Invalid credentials.');
+        self::assertSelectorTextContains(
+            '.alert-danger',
+            $this->translator->trans('Invalid credentials.', domain: 'security'),
+        );
     }
 
     public static function userInvalidCredentialsProvider(): \Generator
@@ -122,7 +131,7 @@ final class SecurityControllerTest extends WebTestCase
 
         $this->client->request('GET', '/login');
 
-        $this->client->submitForm('Sign in', [
+        $this->client->submitForm($this->translator->trans('form.login.button.submit', domain: 'forms'), [
             '_username' => $userAttributes['email'],
             '_password' => $userAttributes['password'],
         ]);
@@ -155,42 +164,73 @@ final class SecurityControllerTest extends WebTestCase
         $maxAttempts = self::getContainer()->getParameter('app.login_throttling.max_attempts');
 
         $crawler = $this->client->request('GET', '/login');
-        $form = $crawler->selectButton('Sign in')->form();
+        $form = $crawler
+            ->selectButton($this->translator->trans('form.login.button.submit', domain: 'forms'))
+            ->form();
 
         $form->setValues([
             '_username' => 'doesNotExist@example.com',
             '_password' => 'wrongPassword',
         ]);
 
-        for ($i = 0;; $i++) {
+        // Simulate allowed number of login attempts.
+        for ($i = 0; $i < $maxAttempts; $i++) {
             $this->client->submit($form);
 
             self::assertResponseRedirects();
             $this->client->followRedirect();
             self::assertRouteSame(SecurityController::ROUTE_LOGIN);
 
-            if ($i < $maxAttempts) {
-                self::assertSelectorTextSame('.alert-danger', 'Invalid credentials.');
-                continue;
-            }
-
-            self::assertSelectorTextContains('.alert-danger', 'Too many failed login attempts');
-            break;
+            self::assertSelectorTextSame(
+                '.alert-danger',
+                $this->translator->trans('Invalid credentials.', domain: 'security'),
+            );
         }
+
+        // Simulate another one login attemt that exceed max allowed attempts.
+        $this->client->submit($form);
+
+        $error = $this->client
+            ->getRequest()
+            ->getSession()
+            ->get(SecurityRequestAttributes::AUTHENTICATION_ERROR);
+
+        $errorMessage = $this->translator->trans($error->getMessageKey(), $error->getMessageData(), 'security');
+
+        self::assertResponseRedirects();
+        $this->client->followRedirect();
+        self::assertRouteSame(SecurityController::ROUTE_LOGIN);
+
+        self::assertSelectorTextSame('.alert-danger', $errorMessage);
     }
 
     public function testLoginFormIsNotDisplayedToLoggedInUser(): void
     {
+        /** @var User $user */
         $user = UserFactory::createOne(['isVerified' => true]);
         $this->client->loginUser($user->_real());
 
         $crawler = $this->client->request('GET', '/login');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextSame('.alert-warning', "You are logged in as: {$user->_real()->getUserIdentifier()}");
+        self::assertSelectorTextSame(
+            '.alert-warning',
+            sprintf(
+                '%s: %s',
+                $this->translator->trans('auth.security.login.logged_in_as', domain: 'sites'),
+                $user->getUserIdentifier(),
+            ),
+        );
 
-        self::assertEmpty($crawler->selectButton('Sign in'));
-        self::assertNotEmpty($crawler->filter('main')->selectLink('Sign out'));
+        self::assertEmpty(
+            $crawler
+                ->selectButton($this->translator->trans('form.login.button.submit', domain: 'forms')),
+        );
+        self::assertNotEmpty(
+            $crawler
+                ->filter('main')
+                ->selectLink($this->translator->trans('action.auth.logout', domain: 'messages')),
+        );
     }
 
     public function testCantLoginToNotVerifiedAccount(): void

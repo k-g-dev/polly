@@ -10,8 +10,8 @@ use Symfony\Component\Validator\Mapping\ClassMetadata;
 class PasswordChange extends Password
 {
     #[Assert\Sequentially([
-        new Assert\NotBlank(message: 'Please enter your current password.'),
-        new SecurityAssert\UserPassword(message: 'Wrong value for your current password.'),
+        new Assert\NotBlank(message: 'password.old.not_blank'),
+        new SecurityAssert\UserPassword(message: 'password.old.wrong'),
     ])]
     public string $oldPlainPassword;
 
@@ -21,7 +21,7 @@ class PasswordChange extends Password
             ->setGroupSequence([basename(self::class), basename(parent::class), PasswordRequirements::GROUP_EXTENDED])
             ->addPropertyConstraint('plainPassword', new Assert\NotIdenticalTo(
                 propertyPath: 'oldPlainPassword',
-                message: 'The new password should not be the same as the current one.',
+                message: 'password.new.not_same_as_current',
             ))
         ;
     }

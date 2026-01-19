@@ -11,6 +11,7 @@ use App\Security\EmailVerifier;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Mime\Address;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ConfirmationEmailSender implements EmailSenderInterface
 {
@@ -20,6 +21,7 @@ class ConfirmationEmailSender implements EmailSenderInterface
         private DurationHelper $durationHelper,
         #[Autowire(param: 'app.symfonycasts_verify_email.lifetime')]
         private int $verificationLifetime,
+        private TranslatorInterface $translator,
     ) {
     }
 
@@ -31,7 +33,7 @@ class ConfirmationEmailSender implements EmailSenderInterface
             (new TemplatedEmail())
                 ->from(new Address($this->config->emailFrom, $this->config->emailName))
                 ->to(new Address($user->getEmail()))
-                ->subject('Please confirm your email')
+                ->subject($this->translator->trans('auth.confirmation_email.subject', domain: 'emails'))
                 ->htmlTemplate('email/auth/confirmation_email.html.twig')
                 ->context($context),
         );
@@ -43,17 +45,31 @@ class ConfirmationEmailSender implements EmailSenderInterface
      */
     public function getInstruction(EmptyValuesSkipMode $skipMode = EmptyValuesSkipMode::All): string
     {
-        return sprintf(
-            'Please verify your email address. The verification link is valid for %s.',
-            $this->getVerificationLifetime($skipMode),
+        $instruction = $this->translator->trans(
+            'email_sender.confirmation_email_sender.verify_email',
+            domain: 'services',
         );
+
+        try {
+            $instruction .= ' ' . $this->translator->trans(
+                'email_sender.confirmation_email_sender.verification_lifetime',
+                ['%verification_lifetime%' => $this->getVerificationLifetime($skipMode)],
+                'services',
+            );
+        } catch (\UnhandledMatchError $e) {
+            // Intentionally ignored, skip concatenation.
+        }
+
+        return $instruction;
     }
 
     /**
      * @return string Time period divided into units
+     * @throws \UnhandledMatchError
      */
     private function getVerificationLifetime(EmptyValuesSkipMode $skipMode = EmptyValuesSkipMode::All): string
     {
-        return $this->durationHelper->getAsString($this->verificationLifetime, $skipMode) ?: '0 seconds';
+        return $this->durationHelper->getAsString($this->verificationLifetime, $skipMode)
+            ?: $this->translator->trans('email_sender.confirmation_email_sender.no_duration', domain: 'services');
     }
 }

@@ -2,11 +2,14 @@
 
 namespace App\Service\PasswordRequirementsInfo;
 
+use Symfony\Contracts\Translation\TranslatorInterface;
+
 abstract class AbstractPasswordRequirementsInfo implements PasswordRequirementsInfoInterface
 {
     public function __construct(
         protected int $minLength,
         protected string $specialChars,
+        private TranslatorInterface $translator,
     ) {
     }
 
@@ -26,26 +29,39 @@ abstract class AbstractPasswordRequirementsInfo implements PasswordRequirementsI
 
     public function getInfoShort(): string
     {
-        return "Your password must be at least {$this->minLength} characters long.";
+        return $this->translator->trans('password_requirements_info.short', [
+            '%min_number_of_chars%' => $this->getTranslatedMinNumberOfChars(),
+        ], 'services');
     }
 
     protected function prepareFullInfoParts(): array
     {
         return [
             'requirementsList' => [
-                'header' => "Your password must be at least {$this->minLength} characters long"
-                    . " and include a combination of at least one:",
+                'header' => $this->translator->trans('password_requirements_info.full.header', [
+                        '%min_number_of_chars%' => $this->getTranslatedMinNumberOfChars(),
+                    ], 'services'),
                 'items' => [
-                    'lowercase letter,',
-                    'uppercase letter,',
-                    'digit,',
-                    'symbol from a defined set of special characters.',
+                    $this->translator
+                        ->trans('password_requirements_info.full.requirements.lowercase_letter', domain: 'services'),
+                    $this->translator
+                        ->trans('password_requirements_info.full.requirements.uppercase_letter', domain: 'services'),
+                    $this->translator
+                        ->trans('password_requirements_info.full.requirements.digit', domain: 'services'),
+                    $this->translator
+                        ->trans('password_requirements_info.full.requirements.special_character', domain: 'services'),
                 ],
             ],
             'specialCharacters' => [
-                'header' => 'Definied set of special characters (listed as string between double quotes):',
+                'header' => $this->translator
+                    ->trans('password_requirements_info.full.special_characters.header', domain: 'services'),
                 'set' => $this->specialChars,
             ],
         ];
+    }
+
+    private function getTranslatedMinNumberOfChars(): string
+    {
+        return $this->translator->trans('character', ['%count%' => $this->minLength], 'units');
     }
 }
