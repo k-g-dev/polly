@@ -12,6 +12,7 @@ use App\Tests\TestSupport\Trait\RateLimiterResetTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Http\SecurityRequestAttributes;
@@ -71,7 +72,7 @@ final class SecurityControllerTest extends WebTestCase
 
     public function testLoginPageLoadsSuccessfully(): void
     {
-        $crawler = $this->client->request('GET', '/login');
+        $crawler = $this->client->request(Request::METHOD_GET, '/login');
         self::assertResponseIsSuccessful();
         self::assertPageTitleContains($this->translator->trans('auth.security.login.title', domain: 'sites'));
         self::assertSelectorTextSame('h1', $this->translator->trans('auth.security.login.heading', domain: 'sites'));
@@ -90,7 +91,7 @@ final class SecurityControllerTest extends WebTestCase
     {
         UserFactory::createOne($userAttributes);
 
-        $this->client->request('GET', '/login');
+        $this->client->request(Request::METHOD_GET, '/login');
 
         $this->client->submitForm($this->translator->trans('form.login.button.submit', domain: 'forms'), [
             '_username' => $badCredentials['email'] ?? $userAttributes['email'],
@@ -129,7 +130,7 @@ final class SecurityControllerTest extends WebTestCase
     {
         UserFactory::createOne($userAttributes);
 
-        $this->client->request('GET', '/login');
+        $this->client->request(Request::METHOD_GET, '/login');
 
         $this->client->submitForm($this->translator->trans('form.login.button.submit', domain: 'forms'), [
             '_username' => $userAttributes['email'],
@@ -163,7 +164,7 @@ final class SecurityControllerTest extends WebTestCase
     {
         $maxAttempts = self::getContainer()->getParameter('app.login_throttling.max_attempts');
 
-        $crawler = $this->client->request('GET', '/login');
+        $crawler = $this->client->request(Request::METHOD_GET, '/login');
         $form = $crawler
             ->selectButton($this->translator->trans('form.login.button.submit', domain: 'forms'))
             ->form();
@@ -210,7 +211,7 @@ final class SecurityControllerTest extends WebTestCase
         $user = UserFactory::createOne(['isVerified' => true]);
         $this->client->loginUser($user->_real());
 
-        $crawler = $this->client->request('GET', '/login');
+        $crawler = $this->client->request(Request::METHOD_GET, '/login');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextSame(
@@ -238,7 +239,7 @@ final class SecurityControllerTest extends WebTestCase
         /** @var User $user */
         $user = UserFactory::createOne(['isVerified' => false]);
 
-        $this->client->request('GET', '/login');
+        $this->client->request(Request::METHOD_GET, '/login');
 
         $this->client->submitForm('Sign in', [
             '_username' => $user->getUserIdentifier(),
@@ -264,9 +265,9 @@ final class SecurityControllerTest extends WebTestCase
         $authorizationChecker = self::getContainer()->get(AuthorizationCheckerInterface::class);
         self::assertTrue($authorizationChecker->isGranted('IS_AUTHENTICATED'));
 
-        $this->client->request('GET', '/terms-of-service');
+        $this->client->request(Request::METHOD_GET, '/terms-of-service');
 
-        $this->client->request('GET', '/logout');
+        $this->client->request(Request::METHOD_GET, '/logout');
         self::assertResponseRedirects('/');
 
         self::assertFalse($authorizationChecker->isGranted('IS_AUTHENTICATED'));

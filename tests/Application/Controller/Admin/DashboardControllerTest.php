@@ -10,6 +10,7 @@ use App\Tests\TestSupport\Trait\LocaleManagementTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
@@ -32,7 +33,7 @@ final class DashboardControllerTest extends WebTestCase
         $admin = UserFactory::new()->admin()->create();
         $this->client->loginUser($admin->_real());
 
-        $this->client->request('GET', '/admin');
+        $this->client->request(Request::METHOD_GET, '/admin');
         self::assertResponseIsSuccessful();
     }
 
@@ -44,7 +45,10 @@ final class DashboardControllerTest extends WebTestCase
         $user = UserFactory::createOne();
         $this->client->loginUser($user->_real());
 
-        $this->client->request('GET', $this->getLocalizedRouteUrl(DashboardController::ROUTE_INDEX, $locale));
+        $this->client->request(
+            Request::METHOD_GET,
+            $this->getLocalizedRouteUrl(DashboardController::ROUTE_INDEX, $locale),
+        );
         self::assertResponseRedirects();
         $this->client->followRedirect();
 
@@ -61,7 +65,10 @@ final class DashboardControllerTest extends WebTestCase
     #[DataProvider('enabledLocalesProvider')]
     public function testAnonymousUserDoesNotHaveAccessToAdminDashboard(string $locale): void
     {
-        $this->client->request('GET', $this->getLocalizedRouteUrl(DashboardController::ROUTE_INDEX, $locale));
+        $this->client->request(
+            Request::METHOD_GET,
+            $this->getLocalizedRouteUrl(DashboardController::ROUTE_INDEX, $locale),
+        );
         self::assertResponseRedirects($this->getLocalizedRouteUrl(SecurityController::ROUTE_LOGIN, $locale), 302);
     }
 }

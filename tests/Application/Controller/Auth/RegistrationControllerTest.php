@@ -11,6 +11,7 @@ use App\Tests\TestSupport\Trait\RateLimiterResetTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
@@ -62,7 +63,7 @@ final class RegistrationControllerTest extends WebTestCase
 
     public function testRegisterPageLoadsSuccessfully()
     {
-        $crawler = $this->client->request('GET', '/register');
+        $crawler = $this->client->request(Request::METHOD_GET, '/register');
         self::assertResponseIsSuccessful();
         self::assertPageTitleContains($this->translator->trans('auth.registration.register.title', domain: 'sites'));
         self::assertSelectorTextSame('h1', $this->translator->trans(
@@ -89,7 +90,7 @@ final class RegistrationControllerTest extends WebTestCase
     public function testRegister(): void
     {
         // Register a new user.
-        $this->client->request('GET', '/register');
+        $this->client->request(Request::METHOD_GET, '/register');
 
         $this->client->submitForm($this->translator->trans('form.registration.button.submit', domain: 'forms'), [
             self::REGISTRATION_FORM_FIELDS['email'] => self::VALID_REGISTRATION_FORM_DATA['email'],
@@ -142,7 +143,7 @@ final class RegistrationControllerTest extends WebTestCase
         preg_match('#"(.+/verification/account/email.+)">#', $messageBody, $verificationLink);
 
         // "Click" the link and see if the user is verified.
-        $this->client->request('GET', html_entity_decode($verificationLink[1]));
+        $this->client->request(Request::METHOD_GET, html_entity_decode($verificationLink[1]));
         $this->client->followRedirect();
 
         $this->userRepository->getEntityManager()->refresh($user);
@@ -153,7 +154,7 @@ final class RegistrationControllerTest extends WebTestCase
     #[DataProvider('invalidRegistrationFormDataProvider')]
     public function testRegisterFailsWhenInvalidFormData(array $formData): void
     {
-        $this->client->request('GET', '/register');
+        $this->client->request(Request::METHOD_GET, '/register');
         self::assertResponseIsSuccessful();
 
         $this->client->submitForm($this->translator->trans('form.registration.button.submit', domain: 'forms'), [
@@ -195,7 +196,7 @@ final class RegistrationControllerTest extends WebTestCase
     {
         $user = UserFactory::createOne();
 
-        $this->client->request('GET', '/register');
+        $this->client->request(Request::METHOD_GET, '/register');
 
         $this->client->submitForm($this->translator->trans('form.registration.button.submit', domain: 'forms'), [
             self::REGISTRATION_FORM_FIELDS['email'] => $user->getEmail(),
@@ -257,7 +258,7 @@ final class RegistrationControllerTest extends WebTestCase
         ];
 
         for ($i = 0; $i < 2; $i++) {
-            $this->client->request('GET', '/register');
+            $this->client->request(Request::METHOD_GET, '/register');
 
             $this->client->submitForm(
                 $this->translator->trans('form.registration.button.submit', domain: 'forms'),

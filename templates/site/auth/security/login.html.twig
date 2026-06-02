@@ -16,7 +16,7 @@
                 </div>
                 <a class="btn btn-primary d-block" href="{{ pathSecurityLogout }}">{{ 'action.auth.logout'|trans }}</a>
             {% else %}
-                <form method="post">
+                <form method="{{ constant('Symfony\\Component\\HttpFoundation\\Request::METHOD_POST') }}">
                     {% if error %}
                         <div class="alert alert-danger">
                             {{ error.messageKey|trans(error.messageData, 'security') }}

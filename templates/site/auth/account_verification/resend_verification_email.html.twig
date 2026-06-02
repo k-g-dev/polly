@@ -24,7 +24,7 @@
                     }}
                 </p>
 
-                <form method="POST">
+                <form method="{{ constant('Symfony\\Component\\HttpFoundation\\Request::METHOD_POST') }}">
                     <button type="submit" class="btn btn-primary mt-2 w-100">
                         {{ 'form.resend_verification_email.button.submit'|trans(domain='forms') }}
                     </button>

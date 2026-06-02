@@ -10,6 +10,7 @@ use App\Factory\UserFactory;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Zenstruck\Foundry\Test\Factories;
@@ -43,7 +44,7 @@ final class LoginFormAuthenticatorTest extends WebTestCase
         /** @var UrlGeneratorInterface $urlGenerator */
         $urlGenerator = $this->client->getContainer()->get(UrlGeneratorInterface::class);
 
-        $this->client->request('GET', $urlGenerator->generate($initialRoute));
+        $this->client->request(Request::METHOD_GET, $urlGenerator->generate($initialRoute));
 
         if ($initialRoute !== SecurityController::ROUTE_LOGIN) {
             $this->client->followRedirect();

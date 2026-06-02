@@ -9,6 +9,7 @@ use App\Repository\UserRepository;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordToken;
@@ -45,7 +46,7 @@ class PasswordResetControllerTest extends WebTestCase
 
     public function testRequestPageLoadsSuccessfully(): void
     {
-        $crawler = $this->client->request('GET', '/reset-password');
+        $crawler = $this->client->request(Request::METHOD_GET, '/reset-password');
 
         self::assertResponseIsSuccessful();
         self::assertPageTitleContains($this->translator->trans('auth.password_reset.request.title', domain: 'sites'));
@@ -73,7 +74,7 @@ class PasswordResetControllerTest extends WebTestCase
 
     public function testCheckEmailPageLoadsSuccessfully(): void
     {
-        $this->client->request('GET', '/reset-password/check-email', server: [
+        $this->client->request(Request::METHOD_GET, '/reset-password/check-email', server: [
             'HTTP_REFERER' => '/reset-password',
         ]);
 
@@ -89,7 +90,7 @@ class PasswordResetControllerTest extends WebTestCase
 
     public function testCheckEmailPageRedirectInCaseOfDirectAccess(): void
     {
-        $this->client->request('GET', '/reset-password/check-email');
+        $this->client->request(Request::METHOD_GET, '/reset-password/check-email');
 
         self::assertResponseRedirects('/login');
     }
@@ -102,7 +103,7 @@ class PasswordResetControllerTest extends WebTestCase
 
         $this->client->disableReboot();
 
-        $this->client->request('GET', '/reset-password/reset/fakeToken123');
+        $this->client->request(Request::METHOD_GET, '/reset-password/reset/fakeToken123');
         $this->client->followRedirect();
 
         self::assertResponseIsSuccessful();
@@ -138,7 +139,7 @@ class PasswordResetControllerTest extends WebTestCase
         $user = UserFactory::createOne();
 
         // Request reset password page.
-        $this->client->request('GET', '/reset-password');
+        $this->client->request(Request::METHOD_GET, '/reset-password');
 
         self::assertResponseIsSuccessful();
         self::assertPageTitleContains($this->translator->trans('auth.password_reset.reset.title', domain: 'sites'));
@@ -191,7 +192,7 @@ class PasswordResetControllerTest extends WebTestCase
         // Test the link sent in the email is valid.
         preg_match('#(/reset-password/reset/[a-zA-Z0-9]+)#', $templatedEmail->getHtmlBody(), $resetLink);
 
-        $this->client->request('GET', $resetLink[1]);
+        $this->client->request(Request::METHOD_GET, $resetLink[1]);
 
         self::assertResponseRedirects('/reset-password/reset');
 
@@ -230,7 +231,7 @@ class PasswordResetControllerTest extends WebTestCase
 
         $this->client->disableReboot();
 
-        $this->client->request('GET', '/reset-password');
+        $this->client->request(Request::METHOD_GET, '/reset-password');
 
         $this->client->submitForm(self::PASSWORD_RESET_REQUEST_FORM_SUBMIT_BUTTON_TEXT, [
             'password_reset_request_form[email]' => 'doesNotExist@example.com',
@@ -255,7 +256,7 @@ class PasswordResetControllerTest extends WebTestCase
         $user = UserFactory::createOne();
 
         for ($i = 0; $i < 2; $i++) {
-            $this->client->request('GET', '/reset-password');
+            $this->client->request(Request::METHOD_GET, '/reset-password');
 
             $this->client->submitForm(self::PASSWORD_RESET_REQUEST_FORM_SUBMIT_BUTTON_TEXT, [
                 'password_reset_request_form[email]' => $user->getEmail(),

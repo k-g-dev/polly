@@ -10,6 +10,7 @@ use App\Helper\ArrayHelper;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Zenstruck\Foundry\Test\Factories;
@@ -52,13 +53,13 @@ final class AccountControllerTest extends WebTestCase
         $user = UserFactory::createOne();
         $this->client->loginUser($user->_real());
 
-        $this->client->request('GET', '/account');
+        $this->client->request(Request::METHOD_GET, '/account');
         self::assertResponseIsSuccessful();
     }
 
     public function testAnonymousUserDoesNotHaveAccessToAccountSection(): void
     {
-        $this->client->request('GET', '/account');
+        $this->client->request(Request::METHOD_GET, '/account');
         self::assertResponseRedirects('/login', 302);
     }
 
@@ -69,7 +70,7 @@ final class AccountControllerTest extends WebTestCase
 
         self::assertFalse($user->hasAgreedToTerms());
 
-        $this->client->request('GET', '/account');
+        $this->client->request(Request::METHOD_GET, '/account');
 
         $initialTargetUrl = $this->client->getRequest()->getUri();
 
@@ -101,7 +102,7 @@ final class AccountControllerTest extends WebTestCase
         $user = UserFactory::createOne();
         $this->client->loginUser($user->_real());
 
-        $crawler = $this->client->request('GET', '/account/password/change');
+        $crawler = $this->client->request(Request::METHOD_GET, '/account/password/change');
         self::assertResponseIsSuccessful();
         self::assertPageTitleContains($this->translator->trans('account.password_change.title', domain: 'sites'));
         self::assertSelectorTextSame(
@@ -131,7 +132,7 @@ final class AccountControllerTest extends WebTestCase
         $user = UserFactory::createOne();
         $this->client->loginUser($user->_real());
 
-        $this->client->request('GET', '/account/password/change');
+        $this->client->request(Request::METHOD_GET, '/account/password/change');
 
         self::assertResponseIsSuccessful();
 
@@ -161,7 +162,7 @@ final class AccountControllerTest extends WebTestCase
         $user = UserFactory::createOne();
         $this->client->loginUser($user->_real());
 
-        $this->client->request('GET', '/account/password/change');
+        $this->client->request(Request::METHOD_GET, '/account/password/change');
 
         $oldHashedPassword = $user->getPassword();
 

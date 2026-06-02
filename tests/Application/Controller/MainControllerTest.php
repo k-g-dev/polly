@@ -4,6 +4,7 @@ namespace App\Tests\Application\Controller;
 
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class MainControllerTest extends WebTestCase
@@ -17,7 +18,7 @@ final class MainControllerTest extends WebTestCase
 
     public function testHomepage(): void
     {
-        $this->client->request('GET', '/');
+        $this->client->request(Request::METHOD_GET, '/');
 
         self::assertResponseIsSuccessful();
     }
@@ -26,7 +27,7 @@ final class MainControllerTest extends WebTestCase
     {
         $translator = static::getContainer()->get(TranslatorInterface::class);
 
-        $this->client->request('GET', '/terms-of-service');
+        $this->client->request(Request::METHOD_GET, '/terms-of-service');
 
         self::assertResponseIsSuccessful();
         self::assertPageTitleContains($translator->trans('main.terms_of_service.title', domain: 'sites'));

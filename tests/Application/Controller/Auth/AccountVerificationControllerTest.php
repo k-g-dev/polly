@@ -13,6 +13,7 @@ use App\Tests\TestSupport\Trait\LocaleManagementTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Model\VerifyEmailSignatureComponents;
@@ -44,7 +45,7 @@ final class AccountVerificationControllerTest extends WebTestCase
         UserFactory::createOne();
 
         $parameters = $userId ? ['id' => (string) $userId] : [];
-        $this->client->request('GET', '/verification/account/email', $parameters);
+        $this->client->request(Request::METHOD_GET, '/verification/account/email', $parameters);
 
         self::assertResponseRedirects();
         $this->client->followRedirect();
@@ -97,7 +98,7 @@ final class AccountVerificationControllerTest extends WebTestCase
             : $queryParameters;
 
         $this->client->request(
-            'GET',
+            Request::METHOD_GET,
             $this->getLocalizedRouteUrl(AccountVerificationController::ROUTE_VERIFY_EMAIL, $locale, $getParameters),
         );
         self::assertResponseRedirects();
@@ -171,7 +172,7 @@ final class AccountVerificationControllerTest extends WebTestCase
 
         $this->client->disableReboot();
 
-        $this->client->request('GET', '/login');
+        $this->client->request(Request::METHOD_GET, '/login');
 
         $this->client->submitForm($formSubmitButtonText['login'], [
             '_username' => $user->getUserIdentifier(),
@@ -203,7 +204,7 @@ final class AccountVerificationControllerTest extends WebTestCase
         self::assertSelectorTextSame('.alert-info', $confirmationEmailSender->getInstruction());
 
         // Try to resend email again. This time it should be blocked by rate limiter.
-        $this->client->request('GET', '/login');
+        $this->client->request(Request::METHOD_GET, '/login');
 
         $this->client->submitForm($formSubmitButtonText['login'], [
             '_username' => $user->getUserIdentifier(),
@@ -236,6 +237,6 @@ final class AccountVerificationControllerTest extends WebTestCase
         $this->client->catchExceptions(false);
         $this->expectException(AccessDeniedException::class);
 
-        $this->client->request('GET', '/verification/account/email/resend');
+        $this->client->request(Request::METHOD_GET, '/verification/account/email/resend');
     }
 }
