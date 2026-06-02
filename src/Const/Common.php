@@ -2,7 +2,7 @@
 
 namespace App\Const;
 
-class Common
+final class Common
 {
     /**
      * A session key used to store the URL of the intercepted request when it is detected that the terms of service

@@ -1,3 +1,7 @@
+{% set areNonDefaultLocalesAvailable
+    = (app.enabled_locales|length > 1)
+    or (app.enabled_locales|length == 1 and (app.enabled_locales|first is not same as app.request.defaultLocale))
+%}
 {% set pathAccountIndex = path(constant('App\\Controller\\AccountController::ROUTE_INDEX')) %}
 {% set pathAdminDashboardIndex = path(constant('App\\Controller\\Admin\\DashboardController::ROUTE_INDEX')) %}
 {% set pathAuthRegistrationRegister = path(constant('App\\Controller\\Auth\\RegistrationController::ROUTE_REGISTER')) %}
@@ -90,9 +94,11 @@
                     </div>
                 {% endif %}
 
-                <div class="navigation-bar__language-switcher">
-                    {{ include('components/language_switcher.html.twig') }}
-                </div>
+                {%  if (areNonDefaultLocalesAvailable) %}
+                    <div class="navigation-bar__language-switcher">
+                        {{ include('components/language_switcher.html.twig') }}
+                    </div>
+                {% endif %}
             </div>
         </div>
     </nav>

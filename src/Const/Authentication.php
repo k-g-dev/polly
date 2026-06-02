@@ -2,7 +2,7 @@
 
 namespace App\Const;
 
-class Authentication
+final class Authentication
 {
     /**
      * A session key used to store the email address of a user whose account has not been verified.
