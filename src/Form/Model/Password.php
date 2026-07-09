@@ -25,7 +25,10 @@ class Password
     public static function loadValidatorMetadata(ClassMetadata $metadata): void
     {
         $metadata
-            ->setGroupSequence([basename(self::class), PasswordRequirements::GROUP_EXTENDED])
+            ->setGroupSequence([
+                (new \ReflectionClass(self::class))->getShortName(),
+                PasswordRequirements::GROUP_EXTENDED,
+            ])
             ->addPropertyConstraint('plainPassword', new PasswordRequirements(
                 passwordMinLength: self::$passwordMinLength,
                 sequentiallyValidation: self::$sequentiallyValidation,

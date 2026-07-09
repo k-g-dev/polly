@@ -17,8 +17,14 @@ class PasswordChange extends Password
 
     public static function loadValidatorMetadata(ClassMetadata $metadata): void
     {
+        $reflection = new \ReflectionClass(self::class);
+
         $metadata
-            ->setGroupSequence([basename(self::class), basename(parent::class), PasswordRequirements::GROUP_EXTENDED])
+            ->setGroupSequence([
+                $reflection->getShortName(),
+                $reflection->getParentClass()->getShortName(),
+                PasswordRequirements::GROUP_EXTENDED,
+            ])
             ->addPropertyConstraint('plainPassword', new Assert\NotIdenticalTo(
                 propertyPath: 'oldPlainPassword',
                 message: 'password.new.not_same_as_current',
