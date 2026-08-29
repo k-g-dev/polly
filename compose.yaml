@@ -1,0 +1,26 @@
+services:
+  php:
+    working_dir: /var/www/html
+    depends_on:
+      mariadb:
+        condition: service_healthy
+
+  nginx:
+    depends_on:
+      - php
+
+  mariadb:
+    image: mariadb:${DB_VERSION}
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?Missing DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME:?Missing DB_NAME}
+      MYSQL_USER: ${DB_USER:?Missing DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?Missing DB_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "ping", "-h", "127.0.0.1", "--protocol=tcp", "-u", "root", "-p${DB_ROOT_PASSWORD}"]
+
+volumes:
+  db_data:

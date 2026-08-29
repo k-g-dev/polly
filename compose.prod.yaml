@@ -1,0 +1,37 @@
+services:
+  php:
+    image: ${APP_NAME}-prod-php:${IMAGE_TAG}
+    build:
+      context: .
+      target: production
+      args:
+        PHP_VERSION: ${PHP_VERSION}
+        NODE_VERSION: ${NODE_VERSION}
+        DB_VERSION: ${DB_VERSION}
+    restart: unless-stopped
+    environment:
+      APP_ENV: prod
+      APP_DEBUG: 0
+      APP_SECRET: ${APP_SECRET:?Missing APP_SECRET}
+      DATABASE_URL: ${DATABASE_URL:?Missing DATABASE_URL}
+      EMAIL_FROM: ${EMAIL_FROM:?Missing EMAIL_FROM}
+      MAILER_DSN: ${MAILER_DSN:?Missing MAILER_DSN}
+
+  nginx:
+    image: ${APP_NAME}-prod-nginx:${IMAGE_TAG}
+    build:
+      context: .
+      target: nginx_production
+      args:
+        NGINX_VERSION: ${NGINX_VERSION}
+    restart: unless-stopped
+    ports:
+      - "80:80"
+
+  mariadb:
+    restart: unless-stopped
+    healthcheck:
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 15s
