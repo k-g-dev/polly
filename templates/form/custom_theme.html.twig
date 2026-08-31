@@ -1,6 +1,6 @@
-{% block checkbox_radio_label %}
-    {% use 'bootstrap_5_layout.html.twig' %}
+{% use 'bootstrap_5_layout.html.twig' %}
 
+{% block checkbox_radio_label %}
     {{ parent() }}
 
     {% if required and widget is defined %}
@@ -9,8 +9,6 @@
 {% endblock %}
 
 {% block form_label %}
-    {% use 'bootstrap_5_layout.html.twig' %}
-
     {{ parent() }}
 
     {% if required and ((compound is not defined) or (not compound)) %}

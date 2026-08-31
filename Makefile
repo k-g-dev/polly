@@ -128,7 +128,7 @@ endef
 
 .PHONY: help \
 	compose-dev compose-prod \
-	composer-install \
+	composer-install composer-update \
 	yarn-install \
 	dev-build dev-up dev-down \
 	dev-assets \
@@ -239,6 +239,9 @@ dev-up: ## Starts Docker containers
 
 composer-install: ## Installs PHP dependencies inside container
 	@$(DEV_PHP_EXEC) composer install
+
+composer-update: ## Updates PHP dependencies inside container (optionally specify DEPENDENCY=vendor/package)
+	@$(DEV_PHP_EXEC) composer update $(DEPENDENCY)
 
 yarn-install: ## Installs Node dependencies inside container
 	@$(DEV_NODE_EXEC) yarn install

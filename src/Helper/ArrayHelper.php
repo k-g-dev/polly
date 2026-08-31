@@ -24,27 +24,26 @@ class ArrayHelper
     /**
      * By default, items with empty values are deleted.
      *
-     * @param callable(mixed): bool $callback Custom filter to qualify items for deletion
+     * @param null|callable(mixed): bool $callback Custom filter to qualify items for deletion
      */
-    public function trim(array $array, TrimMode $mode, callable $filter = null): array
+    public function trim(array $array, TrimMode $mode, ?callable $filter = null): array
     {
         $filter ??= fn(mixed $value): bool => empty($value);
 
-        switch ($mode) {
-            case TrimMode::FromStart:
-                return $this->filterToFirstNonRejected($array, $filter);
-            case TrimMode::FromEnd:
-                return array_reverse(
-                    $this->filterToFirstNonRejected(array_reverse($array, true), $filter),
-                    true,
-                );
-            case TrimMode::Both:
+        return match ($mode) {
+            TrimMode::FromStart => $this->filterToFirstNonRejected($array, $filter),
+            TrimMode::FromEnd => array_reverse(
+                $this->filterToFirstNonRejected(array_reverse($array, true), $filter),
+                true,
+            ),
+            TrimMode::Both => (function () use ($array, $filter) {
                 $filteredFromLeft = $this->filterToFirstNonRejected($array, $filter);
                 return array_reverse(
                     $this->filterToFirstNonRejected(array_reverse($filteredFromLeft, true), $filter),
                     true,
                 );
-        }
+            })(),
+        };
     }
 
     private function filterToFirstNonRejected(array $array, callable $filter): array

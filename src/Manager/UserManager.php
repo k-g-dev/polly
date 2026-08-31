@@ -14,7 +14,7 @@ class UserManager
     ) {
     }
 
-    public function create(UserRegistration $dto, User $user = null): User
+    public function create(UserRegistration $dto, ?User $user = null): User
     {
         $user ??= new User();
         $user->setEmail($dto->email);

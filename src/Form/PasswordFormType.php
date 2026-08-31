@@ -50,6 +50,7 @@ class PasswordFormType extends AbstractType
         $resolver
             ->setAllowedTypes('first_options', 'array')
             ->setAllowedTypes('second_options', 'array')
+            ->setAllowedTypes('password_min_length', 'int')
             ->setAllowedTypes('sequentially_validation', 'bool');
     }
 }

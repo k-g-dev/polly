@@ -73,6 +73,7 @@ RUN yarn build
 FROM base AS production
 
 ARG DB_VERSION=12.3.2
+ARG DEFAULT_URI
 
 ENV APP_ENV=prod
 ENV APP_DEBUG=0
@@ -87,7 +88,8 @@ COPY --from=frontend_production --chown=www-data:www-data /var/www/html/public/b
 RUN composer dump-autoload --no-dev --classmap-authoritative \
     && composer dump-env prod --empty
 
-RUN mkdir -p var/cache var/log \
+RUN export DEFAULT_URI="${DEFAULT_URI}" \
+    && mkdir -p var/cache var/log var/share \
     && php bin/console assets:install public --no-interaction \
     && php bin/console cache:clear \
     && chown -R www-data:www-data /var/www/html

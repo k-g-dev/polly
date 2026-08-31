@@ -1,22 +1,25 @@
 <?php
 
-namespace App\Helper\Validator;
+namespace App\Factory\Console;
 
+use App\Service\ViolationFormatter;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\GroupSequence;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class ValidatorHelper
+final class ValidationClosureFactory
 {
-    public function __construct(private ValidatorInterface $validator)
-    {
+    public function __construct(
+        private ValidatorInterface $validator,
+        private ViolationFormatter $violationFormatter,
+    ) {
     }
 
     /**
      * Create callable validated by ValidatorInterface instance.
      */
-    public function createCallable(Constraint ...$constraints): \Closure
+    public function createForValue(Constraint ...$constraints): \Closure
     {
         return function (mixed $value) use ($constraints): mixed {
             $violations = $this->validator->validate($value, $constraints);
@@ -31,7 +34,7 @@ class ValidatorHelper
      *
      * @param bool $insertValueIfValid Insert value into object property if validation pass
      */
-    public function createPropertyValueValidatorCallable(
+    public function createForProperty(
         object $object,
         string $property,
         string|GroupSequence|array|null $groups = null,
@@ -58,11 +61,6 @@ class ValidatorHelper
             return;
         }
 
-        $messages = [];
-        foreach ($violations as $violation) {
-            $messages[] = $violation->getMessage();
-        }
-
-        throw new \RuntimeException(implode("\n", $messages));
+        throw new \RuntimeException($this->violationFormatter->toString($violations));
     }
 }

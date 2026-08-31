@@ -90,9 +90,9 @@ trait LocaleManagementTrait
      * Allows creating a path even for invalid locations to use them during testing.
      *
      * @param string $basePath Path without locale prefix.
-     * @param string $locale
+     * @param string|null $locale
      */
-    protected static function assembleLocalizedPath(string $basePath, string $locale = null): string
+    protected static function assembleLocalizedPath(string $basePath, ?string $locale = null): string
     {
         $locale ??= self::getDefaultLocale();
 

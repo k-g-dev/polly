@@ -8,12 +8,14 @@ services:
         PHP_VERSION: ${PHP_VERSION}
         NODE_VERSION: ${NODE_VERSION}
         DB_VERSION: ${DB_VERSION}
+        DEFAULT_URI: ${DEFAULT_URI:?Missing DEFAULT_URI}
     restart: unless-stopped
     environment:
-      APP_ENV: prod
       APP_DEBUG: 0
+      APP_ENV: prod
       APP_SECRET: ${APP_SECRET:?Missing APP_SECRET}
       DATABASE_URL: ${DATABASE_URL:?Missing DATABASE_URL}
+      DEFAULT_URI: ${DEFAULT_URI:?Missing DEFAULT_URI}
       EMAIL_FROM: ${EMAIL_FROM:?Missing EMAIL_FROM}
       MAILER_DSN: ${MAILER_DSN:?Missing MAILER_DSN}
 

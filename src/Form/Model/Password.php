@@ -3,36 +3,48 @@
 namespace App\Form\Model;
 
 use App\Validator\PasswordRequirements;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Symfony\Component\Validator\Mapping\ClassMetadata;
 
 class Password
 {
-    private static int $passwordMinLength;
-    private static bool $sequentiallyValidation;
-
-    public string $plainPassword;
+    public ?string $plainPassword = null;
 
     public function __construct(
-        #[Autowire(param: 'app.password.min_length')]
-        int $passwordMinLength,
-        bool $sequentiallyValidation = false,
+        private readonly int $passwordMinLength,
+        private readonly bool $sequentiallyValidation = false,
+        private readonly bool $extendedValidation = true,
     ) {
-        self::$passwordMinLength = $passwordMinLength;
-        self::$sequentiallyValidation = $sequentiallyValidation;
     }
 
     public static function loadValidatorMetadata(ClassMetadata $metadata): void
     {
         $metadata
-            ->setGroupSequence([
-                (new \ReflectionClass(self::class))->getShortName(),
-                PasswordRequirements::GROUP_EXTENDED,
-            ])
-            ->addPropertyConstraint('plainPassword', new PasswordRequirements(
-                passwordMinLength: self::$passwordMinLength,
-                sequentiallyValidation: self::$sequentiallyValidation,
-            ))
+            ->addConstraint(new Assert\Callback('validateDynamicRequirements'));
+    }
+
+    public function validateDynamicRequirements(ExecutionContextInterface $context): void
+    {
+        $constraint = new PasswordRequirements(
+            $this->passwordMinLength,
+            $this->sequentiallyValidation,
+        );
+
+        $groups = ['Default'];
+        if ($this->extendedValidation) {
+            $groups[] = PasswordRequirements::GROUP_EXTENDED;
+        }
+
+        $context
+            ->getValidator()
+            ->inContext($context)
+            ->atPath('plainPassword')
+            ->validate(
+                $this->plainPassword,
+                $constraint,
+                new Assert\GroupSequence($groups),
+            )
         ;
     }
 }

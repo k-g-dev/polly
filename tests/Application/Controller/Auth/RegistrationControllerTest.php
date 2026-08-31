@@ -176,20 +176,26 @@ final class RegistrationControllerTest extends WebTestCase
         yield 'Invalid email' => [$data01];
 
         $data02 = self::VALID_REGISTRATION_FORM_DATA;
-        $data02['password']['second'] = 'invalidPassword#001';
+        $data02['password']['first'] = '';
+        $data02['password']['second'] = '';
 
-        yield 'Not matching passwords' => [$data02];
+        yield 'Empty password' => [$data02];
 
         $data03 = self::VALID_REGISTRATION_FORM_DATA;
-        $data03['password']['first'] = 'aaaaBBBBBBBB#000';
-        $data03['password']['second'] = 'aaaaBBBBBBBB#000';
+        $data03['password']['second'] = 'invalidPassword#001';
 
-        yield 'Password not strong enough' => [$data03];
+        yield 'Not matching passwords' => [$data03];
 
         $data04 = self::VALID_REGISTRATION_FORM_DATA;
-        $data04['agreeTerms'] = false;
+        $data04['password']['first'] = 'aaaaBBBBBBBB#000';
+        $data04['password']['second'] = 'aaaaBBBBBBBB#000';
 
-        yield 'Not agreed to terms' => [$data04];
+        yield 'Password not strong enough' => [$data04];
+
+        $data05 = self::VALID_REGISTRATION_FORM_DATA;
+        $data05['agreeTerms'] = false;
+
+        yield 'Not agreed to terms' => [$data05];
     }
 
     public function testAccountExistsReminderEmailWasSentWhenRegisteringToAlreadyTakenEmailAddress(): void

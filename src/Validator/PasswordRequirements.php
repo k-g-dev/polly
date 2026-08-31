@@ -3,7 +3,6 @@
 namespace App\Validator;
 
 use App\Const\Authentication;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Validator\Attribute\HasNamedArguments;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -14,7 +13,6 @@ class PasswordRequirements extends Assert\Compound
 
     #[HasNamedArguments]
     public function __construct(
-        #[Autowire(param: 'app.password.min_length')]
         public readonly int $passwordMinLength,
         public readonly bool $sequentiallyValidation = false,
         ?array $groups = null,

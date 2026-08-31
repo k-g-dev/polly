@@ -4,13 +4,13 @@ namespace App\Command;
 
 use App\Entity\User;
 use App\Enum\AuthorizationRole;
+use App\Factory\Console\ValidationClosureFactory;
 use App\Form\Model\Password;
 use App\Form\Model\UserRegistration;
-use App\Helper\Validator\ValidationHelper;
-use App\Helper\Validator\ValidatorHelper;
 use App\Manager\UserManager;
 use App\Service\PasswordRequirementsInfo\PasswordRequirementsInfoInterface;
 use App\Trait\Command\AskHiddenWithWarningTrait;
+use App\Validator\PasswordRequirements;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -32,8 +32,7 @@ class UserCreateCommand extends Command
         private UserManager $userManager,
         #[Autowire(param: 'app.password.min_length')]
         private int $passwordMinLength,
-        private ValidatorHelper $validatorHelper,
-        private ValidationHelper $validationHelper,
+        private ValidationClosureFactory $validationClosureFactory,
         private PasswordRequirementsInfoInterface $passwordRequirementsInfo,
     ) {
         parent::__construct();
@@ -47,7 +46,7 @@ class UserCreateCommand extends Command
 
         $io->title('New user creator');
 
-        $io->ask('Enter email', null, $this->validatorHelper->createPropertyValueValidatorCallable(
+        $io->ask('Enter email', null, $this->validationClosureFactory->createForProperty(
             $userRegistrationDto,
             'email',
             new GroupSequence(['Default', UserRegistration::GROUP_COMMAND]),
@@ -62,12 +61,21 @@ class UserCreateCommand extends Command
         }
 
         $passwordDto = new Password($this->passwordMinLength);
-        $this->askHiddenWithWarning($io, 'Enter password', $this->validatorHelper->createPropertyValueValidatorCallable(
-            $passwordDto,
-            'plainPassword',
-        ));
 
-        $io->askHidden('Repeat password', $this->validationHelper->createCallable(
+        $plainPassword = $this->askHiddenWithWarning(
+            $io,
+            'Enter password',
+            $this->validationClosureFactory->createForValue(
+                new PasswordRequirements(
+                    $this->passwordMinLength,
+                    true,
+                ),
+            ),
+        );
+
+        $passwordDto->plainPassword = $plainPassword;
+
+        $io->askHidden('Repeat password', $this->validationClosureFactory->createForValue(
             new NotBlank(),
             new IdenticalTo(value: $passwordDto->plainPassword, message: 'The passwords do not match.'),
         ));
