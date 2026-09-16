@@ -128,7 +128,7 @@ The application will be available at http://localhost
   ```
 * **Destroy production environment** (removes containers, networks, volumes, and local images):
   ```bash
-  make dev-destroy
+  make prod-destroy
   ```
 
 ## For users
