@@ -216,7 +216,8 @@ final class UserCreateCommandTest extends KernelTestCase
             ->with(
                 self::isInstanceOf(UserRegistration::class),
                 self::isInstanceOf(User::class),
-            );
+            )
+            ->willReturn(new User());
 
         return $userManagerMock;
     }

@@ -5,14 +5,14 @@ namespace App\Factory;
 use App\Entity\User;
 use App\Enum\AuthorizationRole;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
+use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 use function Zenstruck\Foundry\force;
 
 /**
- * @extends PersistentProxyObjectFactory<User>
+ * @extends PersistentObjectFactory<User>
  */
-final class UserFactory extends PersistentProxyObjectFactory
+final class UserFactory extends PersistentObjectFactory
 {
     public const USER_DEFAULT_PASSWORD = 'userPassword#001';
 

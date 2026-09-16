@@ -38,7 +38,7 @@ class AccountMenuTest extends WebTestCase
     public function testAccountMenuIsAvailableToLoggedInUsers(): void
     {
         $user = UserFactory::createOne();
-        $this->client->loginUser($user->_real());
+        $this->client->loginUser($user);
 
         $crawler = $this->client->request(Request::METHOD_GET, '/');
 
@@ -49,7 +49,7 @@ class AccountMenuTest extends WebTestCase
     public function testAccountMenuHasLinkToAdminAreaOnlyIfUserHasAdminRole(): void
     {
         $user = UserFactory::createOne();
-        $this->client->loginUser($user->_real());
+        $this->client->loginUser($user);
 
         $this->client->request(Request::METHOD_GET, '/');
 
@@ -61,7 +61,7 @@ class AccountMenuTest extends WebTestCase
         $this->client->request(Request::METHOD_GET, '/logout');
 
         $admin = UserFactory::new()->admin()->create();
-        $this->client->loginUser($admin->_real());
+        $this->client->loginUser($admin);
 
         $this->client->request(Request::METHOD_GET, '/');
 

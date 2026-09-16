@@ -209,7 +209,7 @@ final class SecurityControllerTest extends WebTestCase
     {
         /** @var User $user */
         $user = UserFactory::createOne(['isVerified' => true]);
-        $this->client->loginUser($user->_real());
+        $this->client->loginUser($user);
 
         $crawler = $this->client->request(Request::METHOD_GET, '/login');
 
@@ -260,7 +260,7 @@ final class SecurityControllerTest extends WebTestCase
     public function testLogoutRedirectsToHomepage(): void
     {
         $user = UserFactory::createOne(['isVerified' => true]);
-        $this->client->loginUser($user->_real());
+        $this->client->loginUser($user);
 
         $authorizationChecker = self::getContainer()->get(AuthorizationCheckerInterface::class);
         self::assertTrue($authorizationChecker->isGranted('IS_AUTHENTICATED'));

@@ -31,7 +31,7 @@ final class DashboardControllerTest extends WebTestCase
     public function testAdminHasAccessToAdminDashboard(): void
     {
         $admin = UserFactory::new()->admin()->create();
-        $this->client->loginUser($admin->_real());
+        $this->client->loginUser($admin);
 
         $this->client->request(Request::METHOD_GET, '/admin');
         self::assertResponseIsSuccessful();
@@ -43,7 +43,7 @@ final class DashboardControllerTest extends WebTestCase
         $translator = static::getContainer()->get(TranslatorInterface::class);
 
         $user = UserFactory::createOne();
-        $this->client->loginUser($user->_real());
+        $this->client->loginUser($user);
 
         $this->client->request(
             Request::METHOD_GET,

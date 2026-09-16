@@ -51,7 +51,7 @@ final class AccountControllerTest extends WebTestCase
     public function testUserHasAccessToAccountSection(): void
     {
         $user = UserFactory::createOne();
-        $this->client->loginUser($user->_real());
+        $this->client->loginUser($user);
 
         $this->client->request(Request::METHOD_GET, '/account');
         self::assertResponseIsSuccessful();
@@ -66,7 +66,7 @@ final class AccountControllerTest extends WebTestCase
     public function testTermsOfServiceAcceptance(): void
     {
         $user = UserFactory::createOne(['agreedTermsAt' => force(null)]);
-        $this->client->loginUser($user->_real());
+        $this->client->loginUser($user);
 
         self::assertFalse($user->hasAgreedToTerms());
 
@@ -100,7 +100,7 @@ final class AccountControllerTest extends WebTestCase
     public function testPasswordChangePageLoadsSuccessfully(): void
     {
         $user = UserFactory::createOne();
-        $this->client->loginUser($user->_real());
+        $this->client->loginUser($user);
 
         $crawler = $this->client->request(Request::METHOD_GET, '/account/password/change');
         self::assertResponseIsSuccessful();
@@ -130,7 +130,7 @@ final class AccountControllerTest extends WebTestCase
     {
         /** @var User $user */
         $user = UserFactory::createOne();
-        $this->client->loginUser($user->_real());
+        $this->client->loginUser($user);
 
         $this->client->request(Request::METHOD_GET, '/account/password/change');
 
@@ -160,7 +160,7 @@ final class AccountControllerTest extends WebTestCase
     public function testPasswordChangeFailsWhenInvalidFormData(array $formData): void
     {
         $user = UserFactory::createOne();
-        $this->client->loginUser($user->_real());
+        $this->client->loginUser($user);
 
         $this->client->request(Request::METHOD_GET, '/account/password/change');
 
