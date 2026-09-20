@@ -42,7 +42,7 @@ class PasswordRepeatedType extends AbstractType
         $resolver->setDefaults([
             'type' => PasswordType::class,
             'options' => ['attr' => ['autocomplete' => 'new-password']],
-            'invalid_message' => new TranslatableMessage('password_repeated.not_match', domain: 'validators'),
+            'invalid_message' => 'password_repeated.not_match',
             'password_min_length' => $this->passwordMinLength,
             'sequentially_validation' => false,
             'constraints' => fn(Options $options): array => [

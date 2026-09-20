@@ -18,7 +18,7 @@ class PasswordRequirements extends Assert\Compound
         ?array $groups = null,
         mixed $payload = null,
     ) {
-        parent::__construct([], $groups, $payload);
+        parent::__construct(groups: $groups, payload: $payload);
     }
 
     protected function getConstraints(array $options): array
