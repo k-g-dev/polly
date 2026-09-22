@@ -150,10 +150,11 @@ final class AccountVerificationControllerTest extends WebTestCase
         $translator = $container->get(TranslatorInterface::class);
 
         $getAsStringMethodResult = '--RESULT--';
-        $durationHelper = $this->getMockBuilder(DurationHelper::class)
+
+        $durationHelper = $this->getStubBuilder(DurationHelper::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['getAsString'])
-            ->getMock();
+            ->getStub();
         $durationHelper->method('getAsString')->willReturn($getAsStringMethodResult);
         $container->set(DurationHelper::class, $durationHelper);
 

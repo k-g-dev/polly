@@ -30,12 +30,12 @@ final class LoginFormAuthenticatorTest extends KernelTestCase
         $user = new User();
         $user->setRoles($authorizationRole);
 
-        $session = $this->createStub(Session::class);
-        if ($initialRoute !== null) {
-            $session->method('get')
-                ->with("_security.{$firewallName}.target_path")
-                ->willReturn($urlGenerator->generate($initialRoute));
-        }
+        $session = $this->createMock(Session::class);
+
+        $session->expects($this->once())
+            ->method('get')
+            ->with("_security.{$firewallName}.target_path")
+            ->willReturn(($initialRoute !== null) ? $urlGenerator->generate($initialRoute) : null);
 
         $request = $this->createStub(Request::class);
         $request->method('getSession')->willReturn($session);

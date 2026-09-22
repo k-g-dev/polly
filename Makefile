@@ -260,12 +260,17 @@ test-db-create: ## Creates a test database
 		FLUSH PRIVILEGES; \
 	"
 
-test-run: ## Runs the full PHPUnit test suite (use TEST_PATH=path for specific paths, FILTER=name for specific tests)
-	@$(DEV_PHP_EXEC) php ./vendor/bin/phpunit --testdox $(if $(FILTER),--filter '$(FILTER)',) $(TEST_PATH)
+test-run: ## Runs the full PHPUnit test suite (use TEST_PATH=path for specific paths, FILTER=name for specific tests,
+##   SHOW_ISSUES=true to display all triggered issues, STOP_ON_FAILURE=true to stop after first failure).
+	@$(DEV_PHP_EXEC) php ./vendor/bin/phpunit --testdox \
+		$(if $(filter true,$(SHOW_ISSUES)),--display-all-issues,) \
+		$(if $(filter true,$(STOP_ON_FAILURE)),--stop-on-failure,) \
+		$(if $(FILTER),--filter '$(FILTER)',) \
+		$(TEST_PATH)
 
 ##@ Production
 
-prod-build: ## Builds production Docker images (use NO_CACHE=true to disable the build cache)
+prod-build: ## Builds production Docker images (set NO_CACHE=true to disable the build cache)
 	@$(COMPOSE_PROD) build $(if $(filter true,$(NO_CACHE)),--no-cache,)
 
 prod-cache-clear: ## Clears the Symfony production cache
@@ -274,7 +279,7 @@ prod-cache-clear: ## Clears the Symfony production cache
 prod-db-migrate: ## Runs production database migrations
 	@$(PROD_PHP_EXEC) php bin/console doctrine:migrations:migrate --no-interaction --env=prod
 
-prod-deploy: ## Deploys the application to production (use NO_CACHE=true to disable the build cache)
+prod-deploy: ## Deploys the application to production (set NO_CACHE=true to disable the build cache)
 	@$(call ui_banner,$(call ui_msg_info,ATTENTION: You are about to deploy the application to production))
 
 	@$(MAKE) _confirm
