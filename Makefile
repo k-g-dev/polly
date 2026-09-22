@@ -170,6 +170,9 @@ help: ## Displays a list of available commands
 		} \
 		/^[a-zA-Z_-]+:.*?##/ { \
 			printf "  %s%-25s%s %s\n", command_color, $$1, reset, $$2 \
+		} \
+		/^##[[:space:]]+/ { \
+			printf "                           %s\n", substr($$0, 4) \
 		}' \
 		$(MAKEFILE_LIST)
 
