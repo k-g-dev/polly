@@ -30,7 +30,7 @@
         "symfonycasts/reset-password-bundle": "^1.23",
         "symfonycasts/verify-email-bundle": "^1.17",
         "twig/extra-bundle": "^3.29",
-        "twig/twig": "~3.28.0"
+        "twig/twig": "^3.29"
     },
     "config": {
         "allow-plugins": {
