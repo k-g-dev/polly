@@ -36,13 +36,17 @@ class PasswordFormType extends AbstractType
         $resolver->setDefaults([
             'data_class' => Password::class,
             'empty_data' => function (FormInterface $form): Password {
+                $config = $form->getConfig();
+
                 return new Password(
-                    $form->getConfig()->getOption('password_min_length'),
-                    $form->getConfig()->getOption('sequentially_validation'),
+                    $config->getOption('password_min_length'),
+                    $config->getOption('sequentially_validation'),
+                    $config->getOption('extended_validation'),
                 );
             },
             'password_min_length' => $this->passwordMinLength,
             'sequentially_validation' => false,
+            'extended_validation' => true,
         ]);
 
         $resolver->setDefined(['first_options', 'second_options']);
@@ -51,6 +55,7 @@ class PasswordFormType extends AbstractType
             ->setAllowedTypes('first_options', 'array')
             ->setAllowedTypes('second_options', 'array')
             ->setAllowedTypes('password_min_length', 'int')
-            ->setAllowedTypes('sequentially_validation', 'bool');
+            ->setAllowedTypes('sequentially_validation', 'bool')
+            ->setAllowedTypes('extended_validation', 'bool');
     }
 }

@@ -180,12 +180,14 @@ final class AccountControllerTest extends WebTestCase
 
     public static function invalidPasswordChangeFormDataProvider(): \Generator
     {
+        $validNewPassword = UserFactory::USER_DEFAULT_PASSWORD . 'y';
+
         yield 'Empty current password' => [
             'formData' => [
                 'oldPlainPassword' => '',
                 'plainPassword' => [
-                    'first' => UserFactory::USER_DEFAULT_PASSWORD . 'y',
-                    'second' => UserFactory::USER_DEFAULT_PASSWORD . 'y',
+                    'first' => $validNewPassword,
+                    'second' => $validNewPassword,
                 ],
             ],
         ];
@@ -194,8 +196,8 @@ final class AccountControllerTest extends WebTestCase
             'formData' => [
                 'oldPlainPassword' => UserFactory::USER_DEFAULT_PASSWORD . 'x',
                 'plainPassword' => [
-                    'first' => UserFactory::USER_DEFAULT_PASSWORD . 'y',
-                    'second' => UserFactory::USER_DEFAULT_PASSWORD . 'y',
+                    'first' => $validNewPassword,
+                    'second' => $validNewPassword,
                 ],
             ],
         ];
@@ -205,7 +207,7 @@ final class AccountControllerTest extends WebTestCase
                 'oldPlainPassword' => UserFactory::USER_DEFAULT_PASSWORD,
                 'plainPassword' => [
                     'first' => '',
-                    'second' => UserFactory::USER_DEFAULT_PASSWORD . 'y',
+                    'second' => $validNewPassword,
                 ],
             ],
         ];
@@ -214,7 +216,7 @@ final class AccountControllerTest extends WebTestCase
             'formData' => [
                 'oldPlainPassword' => UserFactory::USER_DEFAULT_PASSWORD,
                 'plainPassword' => [
-                    'first' => UserFactory::USER_DEFAULT_PASSWORD . 'y',
+                    'first' => $validNewPassword,
                     'second' => '',
                 ],
             ],
@@ -224,18 +226,18 @@ final class AccountControllerTest extends WebTestCase
             'formData' => [
                 'oldPlainPassword' => UserFactory::USER_DEFAULT_PASSWORD,
                 'plainPassword' => [
-                    'first' => UserFactory::USER_DEFAULT_PASSWORD . 'y',
+                    'first' => $validNewPassword,
                     'second' => '',
                 ],
             ],
         ];
 
-        yield 'Invalid new password' => [
+        yield 'New password failing composition requirements' => [
             'formData' => [
                 'oldPlainPassword' => UserFactory::USER_DEFAULT_PASSWORD,
                 'plainPassword' => [
-                    'first' => strtolower(UserFactory::USER_DEFAULT_PASSWORD . 'y'),
-                    'second' => strtolower(UserFactory::USER_DEFAULT_PASSWORD . 'y'),
+                    'first' => strtolower($validNewPassword),
+                    'second' => strtolower($validNewPassword),
                 ],
             ],
         ];
@@ -246,6 +248,16 @@ final class AccountControllerTest extends WebTestCase
                 'plainPassword' => [
                     'first' => UserFactory::USER_DEFAULT_PASSWORD,
                     'second' => UserFactory::USER_DEFAULT_PASSWORD,
+                ],
+            ],
+        ];
+
+        yield 'Password not strong enough' => [
+            'formData' => [
+                'oldPlainPassword' => UserFactory::USER_DEFAULT_PASSWORD,
+                'plainPassword' => [
+                    'first' => 'aaaaBBBBBBBB#000',
+                    'second' => 'aaaaBBBBBBBB#000',
                 ],
             ],
         ];

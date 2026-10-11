@@ -56,16 +56,22 @@ class PasswordChangeFormType extends AbstractType
             ->setDefaults([
                 'data_class' => PasswordChange::class,
                 'empty_data' => function (FormInterface $form): PasswordChange {
+                    $config = $form->getConfig();
+
                     return new PasswordChange(
-                        $form->getConfig()->getOption('password_min_length'),
+                        $config ->getOption('password_min_length'),
+                        $config->getOption('sequentially_validation'),
+                        $config->getOption('extended_validation'),
                     );
                 },
                 'password_min_length' => $this->passwordMinLength,
                 'sequentially_validation' => false,
+                'extended_validation' => true,
             ])
         ;
 
         $resolver->setAllowedTypes('password_min_length', 'int');
         $resolver->setAllowedTypes('sequentially_validation', 'bool');
+        $resolver->setAllowedTypes('extended_validation', 'bool');
     }
 }

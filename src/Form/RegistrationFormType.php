@@ -6,7 +6,6 @@ use App\Form\Model\UserRegistration;
 use App\Form\Type\AgreeToTermsType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Translation\TranslatableMessage;
 
@@ -24,6 +23,7 @@ class RegistrationFormType extends AbstractType
             ->add('password', PasswordFormType::class, [
                 'label' => false,
                 'sequentially_validation' => $options['password_sequentially_validation'],
+                'extended_validation' => true,
             ])
         ;
     }
@@ -32,9 +32,7 @@ class RegistrationFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => UserRegistration::class,
-            'empty_data' => function (FormInterface $form): UserRegistration {
-                return new UserRegistration();
-            },
+            'empty_data' => fn(): UserRegistration => new UserRegistration(),
             'password_sequentially_validation' => false,
         ]);
 

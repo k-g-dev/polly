@@ -5,7 +5,7 @@ namespace App\Tests\Application\Controller\Auth;
 use App\Entity\User;
 use App\Factory\UserFactory;
 use App\Helper\ArrayHelper;
-use App\Repository\UserRepository;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -30,7 +30,6 @@ class PasswordResetControllerTest extends WebTestCase
 
     private KernelBrowser $client;
     private TranslatorInterface $translator;
-    private UserRepository $userRepository;
 
     public static function setUpBeforeClass(): void
     {
@@ -41,7 +40,6 @@ class PasswordResetControllerTest extends WebTestCase
     {
         $this->client = static::createClient();
         $this->translator = static::getContainer()->get(TranslatorInterface::class);
-        $this->userRepository = static::getContainer()->get(UserRepository::class);
     }
 
     public function testRequestPageLoadsSuccessfully(): void
@@ -215,6 +213,70 @@ class PasswordResetControllerTest extends WebTestCase
         /** @var UserPasswordHasherInterface $passwordHasher */
         $passwordHasher = static::getContainer()->get(UserPasswordHasherInterface::class);
         self::assertTrue($passwordHasher->isPasswordValid($user, UserFactory::USER_DEFAULT_PASSWORD));
+    }
+
+    #[DataProvider('invalidPasswordFormDataProvider')]
+    public function testPasswordResetFailsWhenInvalidFormData(array $formData): void
+    {
+        $this->client->disableReboot();
+
+        $token = 'fake-token';
+
+        /** @var User $user */
+        $user = UserFactory::createOne();
+
+        $oldHashedPassword = $user->getPassword();
+
+        $resetPasswordHelper = $this->createStub(ResetPasswordHelperInterface::class);
+
+        $resetPasswordHelper
+            ->method('validateTokenAndFetchUser')
+            ->willReturn($user);
+
+        static::getContainer()->set(ResetPasswordHelperInterface::class, $resetPasswordHelper);
+
+        $this->client->request(Request::METHOD_GET, "/reset-password/reset/{$token}");
+
+        $this->client->followRedirect();
+
+        $this->client->submitForm(self::PASSWORD_RESET_FORM_SUBMIT_BUTTON_TEXT, [
+            'password_form[plainPassword][first]' => $formData['plainPassword']['first'],
+            'password_form[plainPassword][second]' => $formData['plainPassword']['second'],
+        ]);
+
+        self::assertSame($oldHashedPassword, $user->getPassword());
+
+        $this->assertResponseStatusCodeSame(422);
+    }
+
+    public static function invalidPasswordFormDataProvider(): \Generator
+    {
+        yield 'Empty password' => [
+            'formData' => [
+                'plainPassword' => [
+                    'first' => '',
+                    'second' => '',
+                ],
+            ],
+        ];
+
+        yield 'Password failing composition requirements' => [
+            'formData' => [
+                'plainPassword' => [
+                    'first' => strtolower(UserFactory::USER_DEFAULT_PASSWORD),
+                    'second' => strtolower(UserFactory::USER_DEFAULT_PASSWORD),
+                ],
+            ],
+        ];
+
+        yield 'Password not strong enough' => [
+            'formData' => [
+                'plainPassword' => [
+                    'first' => 'aaaaBBBBBBBB#000',
+                    'second' => 'aaaaBBBBBBBB#000',
+                ],
+            ],
+        ];
     }
 
     public function testNotRevealWhetherUserAccountWasFoundOrNot(): void
