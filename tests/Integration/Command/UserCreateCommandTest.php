@@ -156,7 +156,7 @@ final class UserCreateCommandTest extends KernelTestCase
 
         $passwordMinLength = self::getContainer()->getParameter('app.password.min_length');
 
-        yield 'Invalid password' => [
+        yield 'Password failing requirements' => [
             'expectedErrorMessages' => [
                 'Please enter a password.',
                 "Your password should be at least {$passwordMinLength} characters long.",
@@ -164,6 +164,7 @@ final class UserCreateCommandTest extends KernelTestCase
                 'Your password should contain at least one lowercase letter.',
                 'Your password should contain at least one uppercase letter.',
                 'Your password should contain at least one special character.',
+                'The password strength is too low. Please use a stronger password.',
             ],
             'inputData' => self::getHappyPathDataWithAdditionalInputs([
                 'passwordEmpty' => '',
@@ -172,6 +173,7 @@ final class UserCreateCommandTest extends KernelTestCase
                 'passwordWithoutLowercase' => 'USERPASSWORD#001',
                 'passwordWithoutUppercase' => 'userpassword#001',
                 'passwordWithoutSpecialCharacters' => 'userPassword001',
+                'passwordNotStrongEnough' => 'aaaaBBBBBBBB#000',
             ], 'password'),
         ];
 

@@ -69,6 +69,7 @@ class UserCreateCommand extends Command
                 new PasswordRequirements(
                     $this->passwordMinLength,
                     true,
+                    ['Default', PasswordRequirements::GROUP_EXTENDED],
                 ),
             ),
         );
