@@ -62,7 +62,7 @@ cp compose.override.yaml.example compose.override.yaml
 
 #### 1. Initial setup
 
-Run the preparation script to build the containers, install dependencies, set up the database, and run the database migrations:
+Run the preparation script to build the containers, install dependencies, serve frontend assets, set up the database, and run the database migrations:
 ```bash
 make dev-prepare-app
 ```

@@ -18,11 +18,15 @@ services:
         HOST_UID: ${HOST_UID}
         HOST_GID: ${HOST_GID}
     user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+    environment:
+      - REPRISE_SERVER_HOST=node
     depends_on:
       init-permissions:
         condition: service_completed_successfully
       mailpit:
         condition: service_healthy
+      node:
+        condition: service_started
     volumes:
       - .:/var/www/html:cached
       - ./docker/php/dev-php.ini:/usr/local/etc/php/conf.d/zzz-dev-php.ini:ro
@@ -44,10 +48,12 @@ services:
     environment:
       - npm_config_cache=/tmp/.npm
       - YARN_CACHE_FOLDER=/tmp/.yarn-cache
+    ports:
+      - "5173:5173"
     volumes:
       - .:/var/www/html:cached
     tty: true
-    stdin_open: true
+    command: ${NODE_COMMAND:-tail -f /dev/null}
 
   mariadb:
     ports:

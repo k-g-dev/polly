@@ -1,4 +1,7 @@
-@import "../components/_language_switcher";
+@use "@/styles/vendors/bootstrap";
+@use "@/styles/abstracts/variables";
+@use "@/styles/abstracts/mixins";
+@use "@/styles/components/language_switcher";
 
 .navigation-bar {
     @extend .navbar;
@@ -14,12 +17,12 @@
             padding: 0 5px;
 
             &:first-child {
-                color: $logo-color-first;
+                color: variables.$logo-color-first;
                 padding-left: 0;
             }
 
             &:nth-child(2) {
-                color: $logo-color-second;
+                color: variables.$logo-color-second;
             }
 
             &:nth-child(3) {
@@ -84,11 +87,11 @@
                 @extend .dropdown-item;
 
                 &:hover {
-                    color: $logo-color-second;
+                    color: variables.$logo-color-second;
                 }
 
                 &:active {
-                    background-color: $dropdown-link-hover-bg;
+                    background-color: bootstrap.$dropdown-link-hover-bg;
                 }
             }
         }
@@ -122,7 +125,7 @@
         margin-top: 1rem;
     }
 
-    @include media-breakpoint-up(md) {
+    @include bootstrap.media-breakpoint-up(md) {
         &__nav {
             margin-bottom: 0;
         }
@@ -131,7 +134,7 @@
             margin-right: 0;
 
             &-toggler {
-                @include btn-sm;
+                @include mixins.btn-sm;
             }
         }
 

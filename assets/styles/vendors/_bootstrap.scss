@@ -1,16 +1,15 @@
-@import "~bootstrap/scss/functions";
+@use "@/styles/abstracts/variables";
+@use "@/styles/abstracts/functions";
 
-$enable-rounded: false;
+@forward "bootstrap/scss/bootstrap" with (
+    $enable-rounded: false,
 
-$primary: rgb(17 122 139);
-$secondary: rgb(84 112 135);
-$info: rgb(156 205 247);
+    $primary: rgb(17 122 139),
+    $secondary: rgb(84 112 135),
+    $info: rgb(156 205 247),
 
-$navbar-light-hover-color: $logo-color-second;
-$navbar-toggler-focus-width: 0.1rem;
+    $spacers: functions.create-spacers(1rem, 0, 0.25, 0.5, 1, 1.5, 2),
 
-@import "~bootstrap/scss/variables";
-
-$spacers: map-merge($spacers, (5: $spacer * 2));
-
-@import "~bootstrap";
+    $navbar-light-hover-color: variables.$logo-color-second,
+    $navbar-toggler-focus-width: 0.1rem,
+);

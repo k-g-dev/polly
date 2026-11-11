@@ -1,3 +1,7 @@
+@use "@/styles/fonts/ibm_plex_mono";
+@use "@/styles/fonts/ibm_plex_sans";
+@use "@/styles/vendors/bootstrap";
+
 .footer {
     @extend .text-bg-light;
     font-size: 0.875rem;

@@ -1,3 +1,6 @@
+@use "@/styles/vendors/bootstrap";
+@use "@/styles/abstracts/variables";
+
 .language-switcher {
     &__toggler {
         @extend .btn;
@@ -20,17 +23,17 @@
                 @extend .dropdown-item;
 
                 &:hover {
-                    color: $logo-color-second;
+                    color: variables.$logo-color-second;
                 }
 
                 &:active {
-                    background-color: $dropdown-link-hover-bg;
+                    background-color: bootstrap.$dropdown-link-hover-bg;
                 }
             }
         }
     }
 
-    @include media-breakpoint-up(md) {
+    @include bootstrap.media-breakpoint-up(md) {
         &__language-menu-dropdown {
             font-size: 1rem;
         }

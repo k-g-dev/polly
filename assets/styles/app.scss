@@ -1,20 +1,5 @@
-@import "./fonts/ibm_plex_sans";
-@import "./fonts/ibm_plex_mono";
-@import "./abstracts";
-@import "./vendors/bootstrap";
-@import "./layout/header";
-@import "./layout/footer";
-
-body {
-    padding-top: 62px;
-}
-
-.required-text {
-    display: inline-block;
-    color: lightcoral;
-    font-size: 0.85rem;
-
-    &:not(&--form-check) {
-        margin-bottom: $form-label-margin-bottom;
-    }
-}
+@forward "@/styles/fonts/ibm_plex_sans";
+@forward "@/styles/fonts/ibm_plex_mono";
+@forward "@/styles/base";
+@forward "@/styles/layout/header";
+@forward "@/styles/layout/footer";

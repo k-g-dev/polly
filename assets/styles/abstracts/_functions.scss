@@ -1,0 +1,12 @@
+@use "sass:map";
+
+@function create-spacers($base-val, $multipliers...) {
+    $spacers: ();
+    $key: 0;
+    @each $multiplier in $multipliers {
+        $spacers: map.merge($spacers, ($key: $base-val * $multiplier));
+        $key: $key + 1;
+    }
+
+    @return $spacers;
+}

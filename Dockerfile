@@ -61,7 +61,7 @@ FROM node:${NODE_VERSION} AS frontend_production
 
 WORKDIR /var/www/html
 
-COPY package.json yarn.lock webpack.config.js ./
+COPY package.json yarn.lock vite.config.js ./
 
 RUN yarn install --frozen-lockfile
 

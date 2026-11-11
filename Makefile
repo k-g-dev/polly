@@ -3,6 +3,8 @@ include .env.local
 
 .DEFAULT_GOAL := help
 
+MAKEFLAGS += --no-print-directory
+
 # -----------------------------------------------------------------------------
 # Project configuration
 # -----------------------------------------------------------------------------
@@ -23,23 +25,17 @@ PHP_SERVICE := php
 NODE_SERVICE := node
 DB_SERVICE := mariadb
 
-DEV_PHP_EXEC := $(COMPOSE_DEV) exec $(PHP_SERVICE)
-DEV_NODE_EXEC := $(COMPOSE_DEV) exec $(NODE_SERVICE)
-DEV_DB_EXEC := $(COMPOSE_DEV) exec $(DB_SERVICE)
+DEV_EXEC := $(COMPOSE_DEV) exec
+
+DEV_PHP_EXEC := $(DEV_EXEC) $(PHP_SERVICE)
+DEV_NODE_EXEC := $(DEV_EXEC) $(NODE_SERVICE)
+DEV_DB_EXEC := $(DEV_EXEC) $(DB_SERVICE)
 
 PROD_PHP_EXEC := $(COMPOSE_PROD) exec -u www-data $(PHP_SERVICE)
 
 TEST_DB_NAME = $(DB_NAME)_test
 
-DEV_UP_FLAGS ?=
-PROD_UP_FLAGS ?=
-
-SERVICE ?=
-
 RMI_MODE ?= local
-
-CHECK_PATH ?=
-TEST_PATH ?=
 
 # -----------------------------------------------------------------------------
 # Docker image tagging
@@ -56,6 +52,7 @@ endif
 
 COLOR_BLUE   := \033[34m
 COLOR_CYAN   := \033[36m
+COLOR_GRAY   := \033[90m
 COLOR_GREEN  := \033[32m
 COLOR_RED    := \033[31m
 COLOR_YELLOW := \033[33m
@@ -66,12 +63,14 @@ ICON_INFO    := ▶
 ICON_WARNING := !
 ICON_ERROR   := ✘
 ICON_STEP    := ➜
+ICON_POINT   := •
 
-MARK_CHECK   := $(COLOR_GREEN)$(ICON_SUCCESS)$(COLOR_RESET)
-MARK_INFO    := $(COLOR_BLUE)$(ICON_INFO)$(COLOR_RESET)
-MARK_WARNING := $(COLOR_YELLOW)$(ICON_WARNING)$(COLOR_RESET)
-MARK_CROSS   := $(COLOR_RED)$(ICON_ERROR)$(COLOR_RESET)
-MARK_ARROW   := $(COLOR_CYAN)$(ICON_STEP)$(COLOR_RESET)
+MARK_CHECK    := $(COLOR_GREEN)$(ICON_SUCCESS)$(COLOR_RESET)
+MARK_INFO     := $(COLOR_BLUE)$(ICON_INFO)$(COLOR_RESET)
+MARK_WARNING  := $(COLOR_YELLOW)$(ICON_WARNING)$(COLOR_RESET)
+MARK_CROSS    := $(COLOR_RED)$(ICON_ERROR)$(COLOR_RESET)
+MARK_ARROW    := $(COLOR_CYAN)$(ICON_STEP)$(COLOR_RESET)
+MARK_SUBPOINT := $(COLOR_GRAY) $(ICON_POINT)$(COLOR_RESET)
 
 UI_SEPARATOR := ================================================================================
 
@@ -83,34 +82,21 @@ define check_dev_running
 	${COMPOSE_DEV} ps --status running -q | grep -q .
 endef
 
-define load-test-env
+define load_test_env
 	$(eval include .env.test.local)
 	$(eval export)
 endef
 
-define ui_msg
-	printf "%b %s\n" "$(1)" "$(2)"
+define _ui_msg
+	printf "%b %s\n" "$(if $(MARK_$(1)),$(MARK_$(1)),>)" "$(2)"
 endef
 
-define ui_msg_success
-	$(call ui_msg,$(MARK_CHECK),$(1))
-endef
-
-define ui_msg_error
-	$(call ui_msg,$(MARK_CROSS),$(1))
-endef
-
-define ui_msg_info
-	$(call ui_msg,$(MARK_INFO),$(1))
-endef
-
-define ui_msg_warning
-	$(call ui_msg,$(MARK_WARNING),$(1))
-endef
-
-define ui_msg_step
-	$(call ui_msg,$(MARK_ARROW),$(1))
-endef
+ui_msg_success    = $(call _ui_msg,CHECK,$(1))
+ui_msg_info       = $(call _ui_msg,INFO,$(1))
+ui_msg_warning    = $(call _ui_msg,WARNING,$(1))
+ui_msg_error      = $(call _ui_msg,CROSS,$(1))
+ui_msg_step       = $(call _ui_msg,ARROW,$(1))
+ui_msg_subpoint   = $(call _ui_msg,SUBPOINT,$(1))
 
 define ui_separator
 	printf "%s\n" "$(UI_SEPARATOR)"
@@ -131,7 +117,9 @@ endef
 	composer-install composer-update \
 	yarn-install \
 	dev-build dev-up dev-down \
-	dev-assets \
+	dev-start dev-stop \
+	dev-assets-serve dev-assets-stop \
+	dev-logs \
 	dev-db-client dev-db-migrate \
 	dev-cache-clear \
 	dev-prepare-app dev-destroy \
@@ -186,8 +174,19 @@ compose-prod: ## Runs Docker Compose commands with production environment config
 
 ##@ Development
 
-dev-assets: ## Builds frontend assets in development mode (supports WATCH=true)
-	@$(DEV_NODE_EXEC) yarn $(if $(filter true,$(WATCH)),watch,dev)
+dev-assets-serve: ## Serves frontend assets for development (use DETACHED=true to run in detached mode)
+ifeq ($(filter true,$(DETACHED)),true)
+	@NODE_COMMAND="yarn dev" $(MAKE) dev-up FLAGS=--force-recreate SERVICES=$(NODE_SERVICE)
+	@$(call ui_msg_info,Frontend assets served in detached mode)
+	@$(call ui_msg_subpoint,Use make dev-logs SERVICES=node to get insight into frontend assets logs)
+	@$(call ui_msg_subpoint,Use make dev-assets-stop to stop serving frontend assets)
+else
+	@$(MAKE) dev-up FLAGS=--force-recreate SERVICES=$(NODE_SERVICE)
+	@$(DEV_NODE_EXEC) yarn dev
+endif
+
+dev-assets-stop: ## Stops serving frontend assets for development
+	@$(MAKE) dev-up FLAGS=--force-recreate SERVICES=$(NODE_SERVICE)
 
 dev-build: ## Builds Docker images (use NO_CACHE=true to disable the build cache)
 	@$(COMPOSE_DEV) build $(if $(filter true,$(NO_CACHE)),--no-cache,)
@@ -208,8 +207,11 @@ dev-destroy: ## Destroys development environment: images, volumes, networks (set
 	@$(MAKE) _confirm && \
 	$(COMPOSE_DEV) down --volumes --rmi $(RMI_MODE)
 
-dev-down: ## Stops and removes Docker containers
+dev-down: ## Stops and removes development containers and networks
 	@$(COMPOSE_DEV) down
+
+dev-logs: ## Streams development logs (all services or specific ones via SERVICES=service_names)
+	@$(COMPOSE_DEV) logs -f $(SERVICES)
 
 dev-prepare-app: ## Prepares the development environment (use NO_CACHE=true to disable the build cache)
 	@$(call ui_msg_info,Preparing development environment...)
@@ -217,7 +219,7 @@ dev-prepare-app: ## Prepares the development environment (use NO_CACHE=true to d
 	$(MAKE) dev-build NO_CACHE=$(or $(NO_CACHE),false)
 	@$(call ui_msg_success,Docker images built)
 
-	$(MAKE) DEV_UP_FLAGS=--wait dev-up
+	$(MAKE) dev-up FLAGS=--wait INTERNAL=true
 	@$(call ui_msg_success,Docker containers started)
 
 	$(MAKE) composer-install
@@ -226,8 +228,8 @@ dev-prepare-app: ## Prepares the development environment (use NO_CACHE=true to d
 	$(MAKE) yarn-install
 	@$(call ui_msg_success,Node dependencies installed)
 
-	$(MAKE) dev-assets WATCH=false
-	@$(call ui_msg_success,Assets built)
+	$(MAKE) dev-assets-serve DETACHED=true
+	@$(call ui_msg_success,Frontend assets served)
 
 	$(MAKE) dev-db-migrate
 	@$(call ui_msg_success,Dev database migrated)
@@ -237,8 +239,17 @@ dev-prepare-app: ## Prepares the development environment (use NO_CACHE=true to d
 
 	@$(call ui_banner,$(call ui_msg_success,Development environment ready for use))
 
-dev-up: ## Starts Docker containers
-	@$(COMPOSE_DEV) up -d $(DEV_UP_FLAGS)
+dev-up: ## Builds and starts Docker containers in the background (use SERVICES=service_names to specify selected services,
+##   FLAGS=options to pass extra flags)
+	@$(COMPOSE_DEV) up -d $(FLAGS) $(SERVICES)
+
+	@$(if $(filter true,$(INTERNAL))$(SERVICES),,$(MAKE) dev-assets-serve DETACHED=true)
+
+dev-start: ## Starts stopped Docker containers without recreating (use SERVICES=service_names to specify selected services)
+	@$(COMPOSE_DEV) start $(SERVICES)
+
+dev-stop: ## Stops Docker containers (use SERVICES=service_names to specify selected services)
+	@$(COMPOSE_DEV) stop $(SERVICES)
 
 composer-install: ## Installs PHP dependencies inside container
 	@$(DEV_PHP_EXEC) composer install
@@ -252,7 +263,7 @@ yarn-install: ## Installs Node dependencies inside container
 ##@ Test
 
 test-db-create: ## Creates a test database
-	$(call load-test-env)
+	$(call load_test_env)
 
 	@$(DEV_DB_EXEC) mariadb -uroot -p$(DB_ROOT_PASSWORD) -e "\
 		CREATE DATABASE IF NOT EXISTS $(TEST_DB_NAME); \
@@ -288,7 +299,7 @@ prod-deploy: ## Deploys the application to production (set NO_CACHE=true to disa
 	$(MAKE) prod-build NO_CACHE=$(or $(NO_CACHE),false)
 	@$(call ui_msg_success,Docker production images built)
 
-	$(MAKE) PROD_UP_FLAGS=--wait prod-up
+	$(MAKE) prod-up FLAGS=--wait
 	@$(call ui_msg_success,Docker production containers started)
 
 	$(MAKE) prod-db-migrate
@@ -303,7 +314,7 @@ prod-destroy: ## Destroys production environment: images, volumes, networks (set
 	@$(MAKE) _confirm && \
 	$(COMPOSE_PROD) down --volumes --rmi $(RMI_MODE)
 
-prod-down: ## Stops and removes production containers
+prod-down: ## Stops and removes production containers and networks
 	@$(call ui_banner,$(call ui_msg_warning,WARNING: You are about to take the production application OFFLINE))
 
 	@$(MAKE) _confirm && \
@@ -322,16 +333,16 @@ prod-image-prune: ## Clean all unused production images from disk
 		$(call ui_msg_error,No production images found); \
 	fi
 
-prod-logs: ## Follows production logs (all services or specific one by adding SERVICE=service_name)
-	@$(COMPOSE_PROD) logs -f $(SERVICE)
+prod-logs: ## Streams production logs (all services or specific ones via SERVICES=service_names)
+	@$(COMPOSE_PROD) logs -f $(SERVICES)
 
 prod-up: ## Starts production containers in the background
-	@$(COMPOSE_PROD) up -d $(PROD_UP_FLAGS)
+	@$(COMPOSE_PROD) up -d $(FLAGS)
 
 ##@ Code quality
 
 code-check: ## Runs PHP_CodeSniffer to detect violations of a defined coding standard (use CHECK_PATH=path to check files from specific path)
-	@$(COMPOSE_DEV) exec php ./vendor/bin/phpcs $(CHECK_PATH)
+	@DOCKER_CLI_HINTS=0 $(DEV_PHP_EXEC) ./vendor/bin/phpcs $(CHECK_PATH)
 
 code-fix: ## Runs PHP_CodeSniffer to automatically correct coding standard violations (use CHECK_PATH=path to correct files from specific path)
-	@$(COMPOSE_DEV) exec php ./vendor/bin/phpcbf $(CHECK_PATH)
+	@$(DEV_PHP_EXEC) ./vendor/bin/phpcbf $(CHECK_PATH)
